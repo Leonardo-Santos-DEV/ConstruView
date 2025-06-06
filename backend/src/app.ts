@@ -31,6 +31,9 @@ sequelize.sync()
   .then(() => console.info("Database synced"))
   .catch(e => console.error("Error syncing database", e));
 
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.use('/auth', authRoutes);
 app.use('/clients', clientRoutes);

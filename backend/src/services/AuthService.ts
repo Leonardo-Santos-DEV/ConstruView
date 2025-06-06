@@ -1,5 +1,4 @@
 import {Request, Response} from 'express';
-import {Op} from 'sequelize';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
@@ -81,7 +80,7 @@ export default class AuthService {
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'none',
       maxAge: 3600000,
     });
 

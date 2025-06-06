@@ -1,4 +1,5 @@
 /.idea/
+/Logo.cdr
 
 /backend/node_modules
 /backend/yarn.lock
@@ -8,4 +9,4 @@
 /frontend/node_modules
 frontend/yarn.lock
 /frontend/.env
-/Logo.cdr
+/frontend/dist

@@ -88,7 +88,13 @@ export default class AuthService {
   }
 
   static async logout(_req: Request, res: Response) {
-    res.clearCookie('token');
-    return res.status(201).json({message: 'Logged out successfully'});
+    res.clearCookie('token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'none',
+      path: '/',
+    });
+
+    return res.status(200).json({message: 'Logged out successfully'});
   }
 }

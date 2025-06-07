@@ -1,6 +1,7 @@
 import User from '../models/User';
 import bcrypt from 'bcrypt';
-import {Request, Response} from "express";
+import Project from "../models/Project";
+import Permission from "../models/Permission";
 
 export default class UserService {
   static async getAll(clientId: number | null) {
@@ -17,7 +18,17 @@ export default class UserService {
 
   static async create(data: any) {
     const hashedPassword = await bcrypt.hash(data.password, 10);
-    return await User.create({...data, password: hashedPassword});
+    const user =  await User.create({...data, password: hashedPassword});
+
+    const projects = await Project.findAll({where: {clientId: data.clientId}});
+
+    await Promise.all(projects.map((project: Project) => {
+      return Permission.create({
+        userId: user.userId,
+        projectId: project.projectId,
+        level: 2,
+      })
+    }))
   }
 
   static async update(id: number, data: any) {

@@ -80,7 +80,9 @@ export default class AuthService {
     res.cookie('token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
+      sameSite: 'lax',
+      domain: process.env.DOMAIN_NAME || undefined,
+      path: '/',
       maxAge: 3600000,
     });
 
@@ -91,8 +93,10 @@ export default class AuthService {
     res.clearCookie('token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
+      sameSite: 'lax',
+      domain: process.env.DOMAIN_NAME || undefined,
       path: '/',
+      maxAge: 3600000,
     });
 
     return res.status(200).json({message: 'Logged out successfully'});

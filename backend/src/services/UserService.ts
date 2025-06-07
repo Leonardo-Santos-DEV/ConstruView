@@ -29,6 +29,8 @@ export default class UserService {
         level: 2,
       })
     }))
+
+    return user;
   }
 
   static async update(id: number, data: any) {

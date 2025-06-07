@@ -17,7 +17,7 @@ export const ThreeSixtyViewScreen: React.FC = () => {
   const [viewData, setViewData] = useState<Content | null>(null);
 
   const [isLoadingScreenData, setIsLoadingScreenData] = useState<boolean>(true);
-  const [screenError, setScreenError] = useState<string | null>(null);
+  const [screenError, setScreenError] = useState<APIError | null>(null);
 
   const navItems = useMemo(() => {
     if (projectId) {
@@ -38,14 +38,14 @@ export const ThreeSixtyViewScreen: React.FC = () => {
         } catch (err) {
           const apiError = err as APIError;
           console.error(`Failed to load project/view data (View: ${viewId}):`, apiError);
-          setScreenError(apiError.message || 'Could not load the data for this view.');
+          setScreenError(apiError);
         } finally {
           setIsLoadingScreenData(false);
         }
       };
       fetchData();
     } else {
-      setScreenError("View IDs not found in URL.");
+      setScreenError({ message: 'Project ID or View ID not found in URL.' });
       setIsLoadingScreenData(false);
     }
   }, [viewId, projectId]);

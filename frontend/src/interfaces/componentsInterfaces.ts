@@ -2,6 +2,7 @@ import type {Category} from "@/interfaces/categoryInterfaces.ts";
 import type {Project} from "@/interfaces/projectInterfaces.ts";
 import type {Content} from "@/interfaces/contentInterfaces.ts";
 import React, {type ReactNode} from "react";
+import type {APIError} from "@/interfaces/apiErrorsInterfaces.ts";
 
 export interface AppHeaderProps {
   projectTitle?: string;
@@ -26,7 +27,7 @@ export interface ContentCardProps {
 
 export interface ScreenStatusHandlerProps<TData> {
   isLoading: boolean;
-  error?: string | null;
+  error?: APIError | null;
   data: TData | null | undefined;
   navItems?: any[];
   notFoundMessage?: string;

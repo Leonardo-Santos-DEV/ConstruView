@@ -16,7 +16,7 @@ export const AerialViewsScreen: React.FC = () => {
 
   const [project, setProject] = useState<Project | null>(null);
   const [isLoadingProject, setIsLoadingProject] = useState<boolean>(true);
-  const [projectError, setProjectError] = useState<string | null>(null);
+  const [projectError, setProjectError] = useState<APIError | null>(null);
 
   const navItems = useMemo(() => {
     if (projectId) {
@@ -36,7 +36,7 @@ export const AerialViewsScreen: React.FC = () => {
         } catch (err) {
           const apiError = err as APIError;
           console.error(`Failed to load project ${projectId} for Aerial Views:`, apiError);
-          setProjectError(apiError.message || 'Could not load project data.');
+          setProjectError(apiError);
         } finally {
           setIsLoadingProject(false);
         }
@@ -44,11 +44,11 @@ export const AerialViewsScreen: React.FC = () => {
       fetchData().catch((err) => {
         const apiError = err as APIError;
         console.error(`Failed to load project ${projectId} for Aerial Views:`, apiError);
-        setProjectError(apiError.message || 'Could not load project data.');
+        setProjectError(apiError);
         setIsLoadingProject(false);
       });
     } else {
-      setProjectError("Project ID not found in URL.");
+      setProjectError({message: 'Project ID not found in URL.'});
       setIsLoadingProject(false);
     }
   }, [projectId]);

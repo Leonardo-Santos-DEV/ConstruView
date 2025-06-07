@@ -23,7 +23,7 @@ export const ProjectsScreen: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState<boolean>(true);
-  const [projectsError, setProjectsError] = useState<string | null>(null);
+  const [projectsError, setProjectsError] = useState<APIError | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,7 +45,7 @@ export const ProjectsScreen: React.FC = () => {
       } catch (err) {
         const apiError = err as APIError;
         console.error('Failed to fetch projects:', apiError);
-        setProjectsError(apiError.message || 'Could not load projects.');
+        setProjectsError(apiError);
       } finally {
         setIsLoadingProjects(false);
       }

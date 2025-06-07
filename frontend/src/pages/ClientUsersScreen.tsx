@@ -15,6 +15,7 @@ import {UserForm} from '@/components/UserForm';
 import {ToggleSwitch} from '@/components/ToggleSwitch';
 import {FiEdit} from "react-icons/fi";
 import {FaUsers, FaPlus} from "react-icons/fa6";
+import type {APIError} from "@/interfaces/apiErrorsInterfaces.ts";
 
 export const ClientUsersScreen: React.FC = () => {
   const {clientId} = useParams<{ clientId: string }>();
@@ -24,7 +25,7 @@ export const ClientUsersScreen: React.FC = () => {
   const [client, setClient] = useState<Client | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<APIError | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -36,7 +37,7 @@ export const ClientUsersScreen: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       if (!clientId) {
-        setError("Client ID not found in URL.");
+        setError({message: 'Client ID is required to load users.'});
         setIsLoading(false);
         return;
       }
@@ -50,7 +51,7 @@ export const ClientUsersScreen: React.FC = () => {
         setClient(clientData);
         setUsers(usersData);
       } catch (err) {
-        setError('Could not load client or user data.');
+        setError(err as APIError);
       } finally {
         setIsLoading(false);
       }

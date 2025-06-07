@@ -26,7 +26,7 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
   const [views, setViews] = useState<Content[]>([]);
 
   const [isLoadingScreenData, setIsLoadingScreenData] = useState<boolean>(true);
-  const [screenError, setScreenError] = useState<string | null>(null);
+  const [screenError, setScreenError] = useState<APIError | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -57,14 +57,14 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
         } catch (err) {
           const apiError = err as APIError;
           console.error('Failed to load 360 gallery data:', apiError);
-          setScreenError(apiError.message || 'Could not load data for 360 views.');
+          setScreenError(apiError);
         } finally {
           setIsLoadingScreenData(false);
         }
       };
       fetchData();
     } else {
-      setScreenError("Project ID not found in URL.");
+      setScreenError({message: 'Project ID not found in URL.'});
       setIsLoadingScreenData(false);
     }
   }, [projectId]);

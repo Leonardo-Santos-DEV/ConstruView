@@ -21,7 +21,7 @@ export const ClientsScreen: React.FC = () => {
 
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<APIError | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,7 +37,7 @@ export const ClientsScreen: React.FC = () => {
       setClients(fetchedClients);
     } catch (err) {
       const apiError = err as APIError;
-      setError(apiError.message || 'Could not load clients.');
+      setError(apiError);
     } finally {
       setIsLoading(false);
     }

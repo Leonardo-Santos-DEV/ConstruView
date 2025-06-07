@@ -19,7 +19,7 @@ export const ProjectDetailScreen: React.FC = () => {
 
   const [project, setProject] = useState<Project | null>(null);
   const [isLoadingProject, setIsLoadingProject] = useState<boolean>(true);
-  const [projectError, setProjectError] = useState<string | null>(null);
+  const [projectError, setProjectError] = useState<APIError | null>(null);
 
   const navItems = useMemo(() => {
     return getTopLevelNavItems(user, navigate);
@@ -37,14 +37,14 @@ export const ProjectDetailScreen: React.FC = () => {
         } catch (err) {
           const apiError = err as APIError;
           console.error(`Failed to fetch project ${projectId}:`, apiError);
-          setProjectError(apiError.message || 'Could not load project details.');
+          setProjectError(apiError);
         } finally {
           setIsLoadingProject(false);
         }
       };
       fetchProjectDetails();
     } else {
-      setProjectError("Project ID not found in URL.");
+      setProjectError({ message: 'Project ID is required to load project details.' });
       setIsLoadingProject(false);
     }
   }, [projectId]);

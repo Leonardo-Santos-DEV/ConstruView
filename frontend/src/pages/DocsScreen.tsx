@@ -15,7 +15,7 @@ export const DocsScreen: React.FC = () => {
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [isLoadingScreenData, setIsLoadingScreenData] = useState<boolean>(true);
-  const [screenError, setScreenError] = useState<string | null>(null);
+  const [screenError, setScreenError] = useState<APIError | null>(null);
 
   const navItems = useMemo(() => {
     if (projectId) {
@@ -36,14 +36,14 @@ export const DocsScreen: React.FC = () => {
         } catch (err) {
           const apiError = err as APIError;
           console.error(`Failed to load project ${projectId} for Docs Screen:`, apiError);
-          setScreenError(apiError.message || 'Could not load project data.');
+          setScreenError(apiError);
         } finally {
           setIsLoadingScreenData(false);
         }
       };
       fetchData();
     } else {
-      setScreenError("Project ID not found in URL.");
+      setScreenError({ message: 'Project ID is required to load documents.' });
       setIsLoadingScreenData(false);
     }
   }, [projectId]);

@@ -16,7 +16,7 @@ export const LiveCamScreen: React.FC = () => {
 
   const [project, setProject] = useState<Project | null>(null);
   const [isLoadingProject, setIsLoadingProject] = useState<boolean>(true);
-  const [projectError, setProjectError] = useState<string | null>(null);
+  const [projectError, setProjectError] = useState<APIError | null>(null);
 
   const navItems = useMemo(() => {
     if (projectId) {
@@ -37,14 +37,14 @@ export const LiveCamScreen: React.FC = () => {
         } catch (err) {
           const apiError = err as APIError;
           console.error(`Failed to load project ${projectId} for Live Cam Screen:`, apiError);
-          setProjectError(apiError.message || 'Could not load project data.');
+          setProjectError(apiError);
         } finally {
           setIsLoadingProject(false);
         }
       };
       fetchData();
     } else {
-      setProjectError("Project ID not found in URL.");
+      setProjectError({ message: 'Project ID is required to load live camera data.' });
       setIsLoadingProject(false);
     }
   }, [projectId]);

@@ -12,8 +12,8 @@ const storage = multer.memoryStorage();
 
 const uploadMiddleware = multer({ storage: storage });
 
-router.get('/', permissionMiddleware(1), ProjectController.getAll);
-router.get('/:id', permissionMiddleware(1), ProjectController.getById);
+router.get('/', ProjectController.getAll);
+router.get('/:id', ProjectController.getById);
 router.post('/', permissionMiddleware(2), uploadMiddleware.single('imageFile'), ProjectController.create);
 router.put('/:id', permissionMiddleware(2), ProjectController.update);
 router.delete('/:id', permissionMiddleware(2), ProjectController.disable);

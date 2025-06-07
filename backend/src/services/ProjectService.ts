@@ -19,8 +19,9 @@ export default class ProjectService {
 
   static async getById(req: Request, res: Response) {
     const {params: {projectId}} = req;
+    const {user} = req;
     if (projectId) {
-      const project = await Project.findByPk(+projectId);
+      const project = await Project.findOne({where: {projectId: +projectId, clientId: user.clientId, enabled: true}});
       if (!project) return res.status(404).json({error: 'Project not found'});
       return res.status(200).json(project);
     } else {
@@ -29,15 +30,15 @@ export default class ProjectService {
   }
 
   static async create(req: Request, res: Response) {
-    const { projectName, clientId } = req.body;
+    const {projectName, clientId} = req.body;
     const imageFile = req.file;
 
     if (!projectName || !clientId) {
-      return res.status(400).json({ message: 'Project name and client ID are required.' });
+      return res.status(400).json({message: 'Project name and client ID are required.'});
     }
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       console.error("Cloudinary configuration is missing. Please check your environment variables.");
-      return res.status(500).json({ message: 'Internal server error. Cloudinary configuration is missing.' });
+      return res.status(500).json({message: 'Internal server error. Cloudinary configuration is missing.'});
     }
 
     try {
@@ -70,7 +71,7 @@ export default class ProjectService {
 
     } catch (error: any) {
       console.error("Error during project creation process:", error.response?.data || error.message);
-      return res.status(500).json({ message: 'An internal error occurred while creating the project.' });
+      return res.status(500).json({message: 'An internal error occurred while creating the project.'});
     }
   }
 

@@ -7,6 +7,9 @@ export async function hasPermission(userId: number, projectId: number, requiredL
     permission = await Permission.findOne({where: {userId}});
   } else {
     permission = await Permission.findOne({where: {userId, projectId}});
+    if (!permission) {
+      return true;
+    }
   }
   return (permission && permission.level >= requiredLevel) || false;
 }

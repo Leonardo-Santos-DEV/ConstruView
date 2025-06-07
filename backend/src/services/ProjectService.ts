@@ -1,11 +1,11 @@
 import {Request, Response} from 'express';
 import Project from "../models/Project";
-import axios from "axios";
-import FormData from 'form-data';
 import Permission from "../models/Permission";
 import User from "../models/User";
+import {uploadImageToCloudinary} from "../helpers/uploadImageToCloudinary";
 
 export default class ProjectService {
+
   static async getAll(req: Request, res: Response) {
     const {user} = req;
     let projects: Project[];
@@ -32,37 +32,20 @@ export default class ProjectService {
     const { projectName, clientId } = req.body;
     const imageFile = req.file;
 
-    if (!imageFile) {
-      return res.status(400).json({ message: 'Project image is required.' });
-    }
     if (!projectName || !clientId) {
       return res.status(400).json({ message: 'Project name and client ID are required.' });
     }
-    if (!process.env.IMGUR_CLIENT_ID) {
-      console.error("IMGUR_CLIENT_ID not set in server environment variables.");
-      return res.status(500).json({ message: 'Image upload service is not configured.' });
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error("Cloudinary configuration is missing. Please check your environment variables.");
+      return res.status(500).json({ message: 'Internal server error. Cloudinary configuration is missing.' });
     }
 
     try {
-      const formData = new FormData();
-      formData.append('image', imageFile.buffer);
+      let imageUrl = process.env.DEFAULT_IMAGE ?? 'https://res.cloudinary.com/dfpdfsuv3/image/upload/v1749297418/vr6d7yslybmfi4ctrbxt.png';
 
-      const imgurResponse = await axios.post(
-        'https://api.imgur.com/3/image',
-        formData,
-        {
-          headers: {
-            ...formData.getHeaders(),
-            Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`,
-          },
-        }
-      );
-
-      if (!imgurResponse.data.success) {
-        throw new Error('Failed to upload image to hosting service.');
+      if (imageFile) {
+        imageUrl = await uploadImageToCloudinary(imageFile.buffer);
       }
-
-      const imageUrl = imgurResponse.data.data.link;
 
       const projectData = {
         projectName,

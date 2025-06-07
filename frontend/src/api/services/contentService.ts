@@ -26,7 +26,10 @@ export const createContent = async (payload: CreateContentPayload): Promise<Cont
   formData.append('category', payload.category);
   formData.append('contentName', payload.contentName);
   formData.append('url', payload.url);
-  formData.append('previewImageFile', payload.previewImageFile);
+
+  if (payload.previewImageFile) {
+    formData.append('previewImageFile', payload.previewImageFile);
+  }
 
   try {
     return (await apiClient.post<Content>('/contents', formData, {

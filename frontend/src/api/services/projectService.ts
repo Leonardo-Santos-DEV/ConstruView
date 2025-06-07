@@ -25,7 +25,10 @@ export const createProject = async (payload: CreateProjectPayload): Promise<Proj
 
   formData.append('projectName', payload.projectName);
   formData.append('clientId', String(payload.clientId));
-  formData.append('imageFile', payload.imageFile);
+
+  if (payload.imageFile) {
+    formData.append('imageFile', payload.imageFile);
+  }
 
   try {
     return (await apiClient.post<Project>('/projects', formData, {

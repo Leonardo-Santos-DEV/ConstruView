@@ -69,16 +69,19 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
     }
   }, [projectId]);
 
-  const handleCreateContentSubmit = async (data: { contentName: string; url: string; previewImageFile: FileList; }) => {
+  const handleCreateContentSubmit = async (data: { contentName: string; url: string; previewImageFile?: FileList | undefined; }) => {
     if (!projectId) return;
 
     setIsSubmitting(true);
+
+    const imageFile = data.previewImageFile && data.previewImageFile.length > 0 ? data.previewImageFile[0] : undefined;
+
     try {
       const newContent = await createContent({
         ...data,
         projectId: +projectId,
         category: '360view',
-        previewImageFile: data.previewImageFile[0],
+        previewImageFile: imageFile,
       });
       setViews(prevViews => [...prevViews, newContent]);
       setIsModalOpen(false);

@@ -114,11 +114,12 @@ export const ClientsScreen: React.FC = () => {
                       {loadedClients.map((client) => (
                         <li key={client.clientId} className="p-3 flex justify-between items-center">
                           <div className="flex items-center gap-4">
-                            <ToggleSwitch
+                            {client.clientId > 1 ? (
+                              <ToggleSwitch
                               enabled={client.enabled}
                               onChange={() => handleToggleStatus(client)}
                               disabled={togglingClientId === client.clientId}
-                            />
+                            />) : null}
                             <p className="font-semibold text-white">{client.clientName}</p>
                           </div>
                           <div className="flex items-center gap-4">

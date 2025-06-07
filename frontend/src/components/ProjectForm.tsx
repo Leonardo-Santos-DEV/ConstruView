@@ -6,9 +6,11 @@ import type { Client } from '@/interfaces/clientInterfaces';
 
 const createProjectSchema = (isMasterAdmin: boolean) => z.object({
   projectName: z.string().min(3, { message: "Project name is too short." }),
-  imageFile: z.instanceof(FileList)
-    .refine(files => files.length > 0, { message: "An image is required." })
-    .refine(files => files[0]?.type.startsWith("image/"), { message: "Only image files are accepted." }),
+  imageFile: z.instanceof(FileList).optional()
+    .refine(
+      (files) => !files || files.length === 0 || (files[0]?.type.startsWith("image/") ?? false),
+      { message: "Only image files are accepted." }
+    ),
   clientId: isMasterAdmin
     ? z.string().min(1, { message: "You must select a client." })
     : z.string().optional(),

@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import Content from '../models/Content';
 import Project from "../models/Project";
-import axios from "axios";
-import FormData from "form-data";
+import {uploadImageToCloudinary} from "../helpers/uploadImageToCloudinary";
 
 export default class ContentService {
   static async getAll(req: Request, res: Response) {
@@ -63,14 +62,9 @@ export default class ContentService {
   }
 
   static async create(req: Request, res: Response) {
-    // 1. O multer já separou o arquivo (req.file) dos campos de texto (req.body)
     const { projectId, category, contentName, url } = req.body;
     const previewImageFile = req.file;
 
-    // Validação dos dados recebidos
-    if (!previewImageFile) {
-      return res.status(400).json({ message: 'Preview image is required.' });
-    }
     if (!projectId || !category || !contentName || !url) {
       return res.status(400).json({ message: 'All fields are required: projectId, category, contentName, url.' });
     }
@@ -80,25 +74,12 @@ export default class ContentService {
     }
 
     try {
-      const formData = new FormData();
-      formData.append('image', previewImageFile.buffer);
+      let previewImageUrl = process.env.DEFAULT_IMAGE ?? 'https://res.cloudinary.com/dfpdfsuv3/image/upload/v1749297418/vr6d7yslybmfi4ctrbxt.png';
 
-      const imgurResponse = await axios.post(
-        'https://api.imgur.com/3/image',
-        formData,
-        {
-          headers: {
-            ...formData.getHeaders(),
-            Authorization: `Client-ID ${process.env.IMGUR_CLIENT_ID}`,
-          },
-        }
-      );
 
-      if (!imgurResponse.data.success) {
-        throw new Error('Failed to upload preview image to hosting service.');
+      if (previewImageFile) {
+        previewImageUrl = await uploadImageToCloudinary(previewImageFile.buffer);
       }
-
-      const previewImageUrl = imgurResponse.data.data.link;
 
       const contentData = {
         projectId: Number(projectId),

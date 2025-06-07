@@ -10,6 +10,6 @@ export interface Project {
 
 export interface CreateProjectPayload {
   projectName: string;
-  imageFile: File;
+  imageFile?: File;
   clientId: number;
 }

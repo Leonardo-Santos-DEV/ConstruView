@@ -23,5 +23,5 @@ export interface CreateContentPayload {
   category: '360view';
   contentName: string;
   url: string;
-  previewImageFile: File;
+  previewImageFile?: File;
 }

@@ -6,9 +6,11 @@ import { z } from 'zod';
 const contentSchema = z.object({
   contentName: z.string().min(3, { message: "View name is too short." }),
   url: z.string().url({ message: "Please enter a valid Matterport URL." }),
-  previewImageFile: z.instanceof(FileList)
-    .refine(files => files.length > 0, { message: "A preview image is required." })
-    .refine(files => files[0]?.type.startsWith("image/"), { message: "Only image files are accepted." }),
+  previewImageFile: z.instanceof(FileList).optional()
+    .refine(
+      (files) => !files || files.length === 0 || (files[0]?.type.startsWith("image/") ?? false),
+      { message: "Only image files are accepted." }
+    ),
 });
 
 type ContentFormData = z.infer<typeof contentSchema>;

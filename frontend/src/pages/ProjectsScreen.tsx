@@ -67,7 +67,7 @@ export const ProjectsScreen: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleCreateProjectSubmit = async (data: { projectName: string; imageFile: FileList; clientId?: string }) => {
+  const handleCreateProjectSubmit = async (data: { projectName: string; imageFile?: FileList | undefined; clientId?: string }) => {
     if (!user) {
       alert("You must be logged in to create a project.");
       return;
@@ -80,10 +80,12 @@ export const ProjectsScreen: React.FC = () => {
     }
 
     setIsSubmitting(true);
+
+    const imageFile = data.imageFile && data.imageFile.length > 0 ? data.imageFile[0] : undefined;
     try {
       const newProject = await createProject({
         projectName: data.projectName,
-        imageFile: data.imageFile[0],
+        imageFile: imageFile,
         clientId: targetClientId,
       });
 

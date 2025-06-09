@@ -21,7 +21,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({children}) => {
       setIsLoading(true);
       try {
         const currentUser = await apiCheckAuthStatus();
-        console.log('2. [AuthContext] Resposta da API (apiCheckAuthStatus):', currentUser);
         if (currentUser) {
           setUser(currentUser);
         } else {

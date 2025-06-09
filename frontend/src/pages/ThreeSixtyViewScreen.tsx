@@ -50,6 +50,25 @@ export const ThreeSixtyViewScreen: React.FC = () => {
     }
   }, [viewId, projectId]);
 
+  const modifiedMatterportUrl = useMemo(() => {
+    if (!viewData?.url) return null;
+
+    try {
+      const url = new URL(viewData.url);
+
+      url.searchParams.set('play', '1');
+      url.searchParams.set('brand', '0');
+      url.searchParams.set('title', '0');
+      url.searchParams.set('search', '0');
+      url.searchParams.set('qs', '1');
+
+      return url.toString();
+    } catch (error) {
+      console.error("URL do Matterport é inválida:", viewData.url);
+      return viewData.url;
+    }
+  }, [viewData?.url]);
+
   return (
     <ScreenStatusHandler
       isLoading={isLoadingScreenData}
@@ -69,9 +88,9 @@ export const ThreeSixtyViewScreen: React.FC = () => {
             />
 
             <main className="flex-grow p-4 flex flex-col">
-              {view.url ? (
+              {modifiedMatterportUrl ? (
                 <iframe
-                  src={view.url}
+                  src={modifiedMatterportUrl}
                   title={`360 view of ${view.contentName}`}
                   className="w-full flex-grow border-0 rounded-2xl shadow-lg"
                   allowFullScreen

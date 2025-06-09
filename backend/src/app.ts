@@ -13,7 +13,7 @@ import cors from 'cors';
 const app = express();
 
 const corsOptions = {
-  origin: process.env.FRONTEND_HOST || 'http://localhost:5173',
+  origin: /^(http:\/\/localhost:\d+|https:\/\/.*\.leonardosantos\.dev)$/,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

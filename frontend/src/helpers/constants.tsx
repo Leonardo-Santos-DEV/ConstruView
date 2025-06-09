@@ -8,7 +8,8 @@ import {MdOutlineAdminPanelSettings } from "react-icons/md";
 import type {AuthenticatedUser} from "@/interfaces/authInterfaces.ts";
 
 export const APP_ROUTES = {
-  LOGIN: '/',
+  HOME: '/',
+  LOGIN: '/login',
   PROJECTS: '/projects',
   CLIENTS: '/clients',
   PROJECT_DETAIL_BASE: '/project',

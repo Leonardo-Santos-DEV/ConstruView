@@ -13,8 +13,8 @@ const storage = multer.memoryStorage();
 const uploadMiddleware = multer({ storage: storage });
 
 router.use(authMiddleware);
-router.get('/', permissionMiddleware(1), ContentController.getAll);
-router.get('/:id', permissionMiddleware(1), ContentController.getById);
+router.get('/', ContentController.getAll);
+router.get('/:id', ContentController.getById);
 router.post('/', permissionMiddleware(2),uploadMiddleware.single('previewImageFile'), ContentController.create);
 router.put('/:id', permissionMiddleware(2), ContentController.update);
 router.delete('/:id', permissionMiddleware(2), ContentController.disable);

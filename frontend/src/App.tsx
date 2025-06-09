@@ -12,17 +12,15 @@ import {AuthProvider} from "@/context/AuthContext.tsx";
 import {AdminRouteVerify} from "@/components/AdminRouteVerify.tsx";
 import {ClientsScreen} from "@/pages/ClientsScreen.tsx";
 import {ClientUsersScreen} from "@/pages/ClientUsersScreen.tsx";
-import {RootRedirect} from "@/components/RootRedirect.tsx";
-import {ProtectedRoute} from "@/components/ProtectedRoute.tsx";
+import {ProtectedRouteVerify} from "@/components/ProtectedRouteVerify.tsx";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          <Route path={APP_ROUTES.HOME} element={<RootRedirect/>}/>
           <Route path={APP_ROUTES.LOGIN} element={<LoginScreen/>}/>
-          <Route element={<ProtectedRoute />}>
+          <Route element={<ProtectedRouteVerify />}>
           <Route
             path={APP_ROUTES.PROJECTS}
             element={<ProjectsScreen/>}

@@ -68,9 +68,9 @@ export default class ContentService {
     if (!projectId || !category || !contentName || !url) {
       return res.status(400).json({ message: 'All fields are required: projectId, category, contentName, url.' });
     }
-    if (!process.env.IMGUR_CLIENT_ID) {
-      console.error("IMGUR_CLIENT_ID not set in server environment variables.");
-      return res.status(500).json({ message: 'Image upload service is not configured.' });
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.error("Cloudinary configuration is missing. Please check your environment variables.");
+      return res.status(500).json({message: 'Internal server error. Cloudinary configuration is missing.'});
     }
 
     try {

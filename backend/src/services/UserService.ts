@@ -2,6 +2,8 @@ import User from '../models/User';
 import bcrypt from 'bcrypt';
 import Project from "../models/Project";
 import Permission from "../models/Permission";
+import sequelize from '../config/database';
+import { CreateUserPayload, UpdateUserPayload } from '../interfaces/UserInterfaces';
 
 export default class UserService {
   static async getAll(clientId: number | null) {
@@ -16,24 +18,33 @@ export default class UserService {
     return User.findByPk(id);
   }
 
-  static async create(data: any) {
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    const user =  await User.create({...data, password: hashedPassword});
+  static async create(data: CreateUserPayload) {
+    const t = await sequelize.transaction();
 
-    const projects = await Project.findAll({where: {clientId: data.clientId}});
+    try {
+      const hashedPassword = await bcrypt.hash(data.password, 10);
+      const user =  await User.create({...data, password: hashedPassword}, { transaction: t });
 
-    await Promise.all(projects.map((project: Project) => {
-      return Permission.create({
-        userId: user.userId,
-        projectId: project.projectId,
-        level: 2,
-      })
-    }))
+      const projects = await Project.findAll({where: {clientId: data.clientId}});
 
-    return user;
+      await Promise.all(projects.map((project: Project) => {
+        return Permission.create({
+          userId: user.userId,
+          projectId: project.projectId,
+          level: 2,
+        }, { transaction: t });
+      }));
+
+      await t.commit();
+      return user;
+
+    } catch (error) {
+      await t.rollback();
+      throw error;
+    }
   }
 
-  static async update(id: number, data: any) {
+  static async update(id: number, data: UpdateUserPayload) {
     const user = await User.findByPk(id);
     if (!user) return null;
 

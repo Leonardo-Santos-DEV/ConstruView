@@ -4,7 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { User } from '@/interfaces/userInterfaces';
 
-const createUserSchema = (isEditing: boolean) => z.object({
+// Adicionado 'export'
+export const createUserSchema = (isEditing: boolean) => z.object({
   userName: z.string().min(3, "Username must be at least 3 characters."),
   email: z.string().email("Please enter a valid email."),
   password: isEditing
@@ -12,7 +13,8 @@ const createUserSchema = (isEditing: boolean) => z.object({
     : z.string().min(6, "Password is required and must be at least 6 characters."),
 });
 
-type UserFormData = z.infer<ReturnType<typeof createUserSchema>>;
+// Adicionado 'export'
+export type UserFormData = z.infer<ReturnType<typeof createUserSchema>>;
 
 interface UserFormProps {
   onSubmit: SubmitHandler<UserFormData>;

@@ -11,7 +11,7 @@ import {createUser, getUsersByClientId, updateUser} from '@/api/services/userSer
 import {getClientById} from '@/api/services/clientService';
 import type {Client} from '@/interfaces/clientInterfaces';
 import {Modal} from '@/components/Modal';
-import {UserForm} from '@/components/UserForm';
+import {UserForm, type UserFormData} from '@/components/UserForm';
 import {ToggleSwitch} from '@/components/ToggleSwitch';
 import {FiEdit} from "react-icons/fi";
 import {FaUsers, FaPlus} from "react-icons/fa6";
@@ -81,13 +81,13 @@ export const ClientUsersScreen: React.FC = () => {
     }
   };
 
-  const handleFormSubmit = async (data: any) => {
+  const handleFormSubmit = async (data: UserFormData) => { // Alterado de 'any' para 'UserFormData'
     if (!clientId) return;
     setIsSubmitting(true);
     try {
       if (selectedUser) {
         const payload: UpdateUserPayload = {...data};
-        if (!payload.password) delete payload.password;
+        if (!payload.password) delete payload.password; // Lógica para não enviar senha vazia
 
         const updatedUser = await updateUser(selectedUser.userId, payload);
         setUsers(prevUsers => prevUsers.map(u => (u.userId === selectedUser.userId ? updatedUser : u)));

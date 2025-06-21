@@ -1,102 +1,67 @@
-import {Request, Response} from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
 import Client from "../models/Client";
-import {loginResponse} from "../interfaces/AuthInterfaces";
+import { loginResponse } from "../interfaces/AuthInterfaces";
+import { LoginPayload } from "../interfaces/AuthInterfaces";
 
 export default class AuthService {
-  static async me(req: Request, res: Response) {
-    try {
-      const {userId, clientId} = req.user;
-
-      const user = await User.findByPk(userId);
-
-      if (!user) {
-        return res.status(404).json({message: 'User not found'});
-      }
-
-      let companyName = null;
-      const client = await Client.findByPk(clientId);
-      if (client) {
-        companyName = client.clientName;
-      }
-
-      const response: loginResponse = {
-        userId: user.userId,
-        userName: user.userName,
-        isMasterAdmin: user.isMasterAdmin,
-        clientId: clientId,
-        clientName: companyName,
-      };
-
-      return res.status(200).json(response);
-
-    } catch (error) {
-      console.error('Error in /auth/me route:', error);
-      return res.status(500).json({message: 'Server error while fetching user details'});
-    }
-  }
-
-  static async login(req: Request, res: Response) {
-    const {email, password} = req.body;
-
-    const user = await User.findOne({
-      where: {
-        email: email,
-        enabled: true,
-      },
+  static async me(authenticatedUser: loginResponse): Promise<loginResponse | null> {
+    const { userId } = authenticatedUser;
+    const user = await User.findByPk(userId, {
+      include: [{ model: Client, as: 'client' }]
     });
 
     if (!user) {
-      return res.status(401).json({error: 'Invalid credentials'});
+      return null;
+    }
+
+    return {
+      userId: user.userId,
+      userName: user.userName,
+      isMasterAdmin: user.isMasterAdmin,
+      clientId: user.clientId,
+      clientName: (user as any).client.clientName,
+    };
+  }
+
+  static async login(payload: LoginPayload): Promise<{ user: loginResponse, token: string }> {
+    if (!process.env.JWT_SECRET) {
+      console.error("Fatal Error: JWT_SECRET is not defined.");
+      throw new Error('Internal server configuration error.');
+    }
+
+    const { email, password } = payload;
+    const user = await User.findOne({
+      where: { email: email, enabled: true },
+    });
+
+    if (!user) {
+      throw new Error('Invalid credentials');
     }
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      return res.status(401).json({error: 'Invalid credentials'});
+      throw new Error('Invalid credentials');
     }
 
-    let companyName = null;
     const client = await Client.findByPk(user.clientId);
-    if (client) {
-      companyName = client.clientName;
-    }
+    const companyName = client ? client.clientName : '';
 
-    const response: loginResponse = {
+    const responsePayload: loginResponse = {
       userId: user.userId,
       userName: user.userName,
       isMasterAdmin: user.isMasterAdmin,
       clientId: user.clientId,
       clientName: companyName,
-    }
+    };
 
     const token = jwt.sign(
-      response,
-      process.env.JWT_SECRET || 'default_secret',
-      {expiresIn: '1h'}
+      responsePayload,
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
     );
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      domain: process.env.DOMAIN_NAME || undefined,
-      path: '/',
-    });
-
-    return res.status(200).json(response);
-  }
-
-  static async logout(_req: Request, res: Response) {
-    res.clearCookie('token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      domain: process.env.DOMAIN_NAME || undefined,
-      path: '/',
-    });
-
-    return res.status(200).json({message: 'Logged out successfully'});
+    return { user: responsePayload, token };
   }
 }

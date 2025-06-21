@@ -5,6 +5,10 @@ import { loginResponse as AuthenticatedUserPayload } from '../interfaces/AuthInt
 
 export function permissionMiddleware(requiredLevel: number) {
   return async (req: Request & { user?: AuthenticatedUserPayload }, res: Response, next: NextFunction) => {
+    if (req.method === 'OPTIONS') {
+      return next();
+    }
+
     const user = req.user;
 
     if (!user) {

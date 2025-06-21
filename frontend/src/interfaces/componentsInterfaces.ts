@@ -13,6 +13,8 @@ export interface AppHeaderProps {
 export interface ProjectCardProps {
   project: Project;
   onClick: () => void;
+  onEdit: () => void;
+  onDelete: () => void
 }
 
 export interface CategoryCardProps {
@@ -23,6 +25,8 @@ export interface CategoryCardProps {
 export interface ContentCardProps {
   view: Content;
   onClick: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 export interface ScreenStatusHandlerProps<TData> {
@@ -38,4 +42,9 @@ export interface ToggleSwitchProps {
   enabled: boolean;
   onChange: (enabled: boolean) => void;
   disabled?: boolean;
+}
+
+export interface FloatingActionButtonProps {
+  onClick: () => void;
+  ariaLabel: string;
 }

@@ -1,3 +1,4 @@
+// CÓDIGO ATUALIZADO - COPIAR E COLAR
 import apiClient from '../apiClient';
 import type { Client, CreateClientPayload, UpdateClientPayload } from "@/interfaces/clientInterfaces.ts";
 
@@ -37,9 +38,10 @@ export const updateClient = async (clientId: number, payload: UpdateClientPayloa
   }
 };
 
-export const disableClient = async (clientId: number): Promise<void> => {
+// Alterado o tipo de retorno de Promise<void> para Promise<Client>
+export const disableClient = async (clientId: number): Promise<Client> => {
   try {
-    await apiClient.delete(`/clients/${clientId}`);
+    return (await apiClient.delete(`/clients/${clientId}`)).data;
   } catch (error) {
     console.error(`Error disabling client ${clientId}:`, error);
     throw error;

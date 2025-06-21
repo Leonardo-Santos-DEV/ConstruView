@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Client } from '@/interfaces/clientInterfaces';
 
-// Schema agora valida apenas o nome do cliente
 const clientSchema = z.object({
   clientName: z.string().min(3, { message: "Client name must be at least 3 characters long." }),
 });

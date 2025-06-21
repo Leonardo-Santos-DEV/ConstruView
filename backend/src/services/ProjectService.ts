@@ -1,91 +1,74 @@
-import {Request, Response} from 'express';
 import Project from "../models/Project";
 import Permission from "../models/Permission";
 import User from "../models/User";
-import {uploadImageToCloudinary} from "../helpers/uploadImageToCloudinary";
+import sequelize from '../config/database';
+import { CreateProjectPayload, UpdateProjectPayload } from '../interfaces/ProjectInterfaces';
+import { loginResponse as AuthenticatedUser } from '../interfaces/AuthInterfaces';
 
 export default class ProjectService {
 
-  static async getAll(req: Request, res: Response) {
-    const {user} = req;
-    let projects: Project[];
+  static async getAll(user: AuthenticatedUser): Promise<Project[]> {
     if (user.isMasterAdmin) {
-      projects = await Project.findAll();
+      return Project.findAll({ where: { enabled: true } });
     } else {
-      projects = await Project.findAll({where: {clientId: user.clientId, enabled: true}});
-    }
-    return res.status(200).json(projects);
-  }
-
-  static async getById(req: Request, res: Response) {
-    const {params: {projectId}} = req;
-    const {user} = req;
-    if (projectId) {
-      const project = await Project.findOne({where: {projectId: +projectId, clientId: user.clientId, enabled: true}});
-      if (!project) return res.status(404).json({error: 'Project not found'});
-      return res.status(200).json(project);
-    } else {
-      return res.status(400).json({error: 'Project ID is required'});
+      return Project.findAll({ where: { clientId: user.clientId, enabled: true } });
     }
   }
 
-  static async create(req: Request, res: Response) {
-    const {projectName, clientId} = req.body;
-    const imageFile = req.file;
+  static async getById(projectId: number, user: AuthenticatedUser): Promise<Project | null> {
+    const whereClause: any = {
+      projectId: projectId,
+      enabled: true
+    };
 
-    if (!projectName || !clientId) {
-      return res.status(400).json({message: 'Project name and client ID are required.'});
-    }
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      console.error("Cloudinary configuration is missing. Please check your environment variables.");
-      return res.status(500).json({message: 'Internal server error. Cloudinary configuration is missing.'});
+    if (!user.isMasterAdmin) {
+      whereClause.clientId = user.clientId;
     }
 
+    return Project.findOne({ where: whereClause });
+  }
+
+  static async create(payload: CreateProjectPayload): Promise<Project> {
+    const t = await sequelize.transaction();
     try {
-      let imageUrl = process.env.DEFAULT_IMAGE ?? 'https://res.cloudinary.com/dfpdfsuv3/image/upload/v1749297418/vr6d7yslybmfi4ctrbxt.png';
+      const newProject = await Project.create({
+        ...payload,
+        enabled: true
+      }, { transaction: t });
 
-      if (imageFile) {
-        imageUrl = await uploadImageToCloudinary(imageFile.buffer);
-      }
-
-      const projectData = {
-        projectName,
-        clientId: Number(clientId),
-        imageUrl: imageUrl,
-        enabled: true,
-      };
-
-      const newProject = await Project.create(projectData);
-
-      const users: User[] = await User.findAll({where: {clientId}});
+      const users = await User.findAll({ where: { clientId: payload.clientId } });
 
       await Promise.all(users.map((user: User) => {
         return Permission.create({
           userId: user.userId,
           projectId: newProject.projectId,
           level: 2,
-        })
-      }))
+        }, { transaction: t });
+      }));
 
-      return res.status(201).json(newProject);
-
-    } catch (error: any) {
-      console.error("Error during project creation process:", error.response?.data || error.message);
-      return res.status(500).json({message: 'An internal error occurred while creating the project.'});
+      await t.commit();
+      return newProject;
+    } catch (error) {
+      await t.rollback();
+      throw error;
     }
   }
 
-  static async update(req: Request, res: Response) {
-    const project = await Project.findByPk(req.params.id);
-    if (!project) return res.status(404).json({error: 'Not found'});
-    await project.update(req.body);
-    return res.status(204);
+  static async update(id: number, payload: UpdateProjectPayload): Promise<Project | null> {
+    const project = await Project.findByPk(id);
+    if (!project) {
+      return null;
+    }
+    await project.update(payload);
+    return project;
   }
 
-  static async disable(req: Request, res: Response) {
-    const project = await Project.findByPk(req.params.id);
-    if (!project) return res.status(404).json({error: 'Not found'});
-    await project.update({enabled: false});
-    return res.status(204);
+  static async disable(id: number): Promise<Project | null> {
+    const project = await Project.findByPk(id);
+    if (!project) {
+      return null;
+    }
+    await project.update({ enabled: false });
+    return project;
   }
 }

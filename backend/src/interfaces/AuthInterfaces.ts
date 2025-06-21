@@ -1,3 +1,8 @@
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
 export interface loginResponse {
   userId: number,
   userName: string,

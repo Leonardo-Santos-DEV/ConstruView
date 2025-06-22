@@ -55,7 +55,7 @@ export default class ContentService {
     const content = await Content.findByPk(contentId);
     if (!content) return null;
     await content.update(payload);
-    return content;
+    return Content.findByPk(contentId);
   }
 
   static async disable(contentId: number) {

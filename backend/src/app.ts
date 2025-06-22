@@ -13,7 +13,7 @@ import cors from 'cors';
 const app = express();
 
 const corsOptions = {
-  origin: /^(http:\/\/localhost:\d+|https:\/\/.*\.onrender\.com|https:\/\/construview\.ai)$/,
+  origin: /^(http:\/\/localhost:\d+|https:\/\/.*\.onrender\.com|https:\/\/construview\.ai|https:\/\/.*\.leonardosantos\.dev)$/,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

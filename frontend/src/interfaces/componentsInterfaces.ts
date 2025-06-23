@@ -22,7 +22,7 @@ export interface CategoryCardProps {
   onClick: () => void;
 }
 
-export interface ContentCardProps {
+export interface ContentListItemProps {
   view: Content;
   onClick: () => void;
   onEdit: () => void;

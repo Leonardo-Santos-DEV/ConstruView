@@ -7,15 +7,11 @@ import type { Project } from '@/interfaces/projectInterfaces';
 
 const createProjectSchema = (isMasterAdmin: boolean) => z.object({
   projectName: z.string().min(3, { message: "Project name is too short." }),
-  imageFile: z.instanceof(FileList).optional()
-    .refine(
-      (files) => !files || files.length === 0 || (files[0]?.type.startsWith("image/") ?? false),
-      { message: "Only image files are accepted." }
-    ),
+  imageFile: z.instanceof(FileList).optional(),
   clientId: isMasterAdmin
     ? z.string().min(1, { message: "You must select a client." })
     : z.string().optional(),
-})
+});
 
 type ProjectFormData = z.infer<ReturnType<typeof createProjectSchema>>;
 
@@ -51,11 +47,7 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
       });
       setPreview(initialData.imageUrl || null);
     } else {
-      reset({
-        projectName: '',
-        clientId: '',
-        imageFile: undefined
-      });
+      reset({ projectName: '', clientId: '', imageFile: undefined });
       setPreview(null);
     }
   }, [initialData, isEditing, reset]);
@@ -79,7 +71,8 @@ export const ProjectForm: React.FC<ProjectFormProps> = ({
           <select
             id="clientId"
             {...register('clientId')}
-            className="h-10 w-full bg-sky-700 px-3 text-white rounded-md border border-sky-600 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+            disabled={isEditing} // Não permite trocar o cliente de um projeto existente
+            className="h-10 w-full bg-sky-700 px-3 text-white rounded-md border border-sky-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <option value="">-- Select a Client --</option>
             {clients.map(client => (

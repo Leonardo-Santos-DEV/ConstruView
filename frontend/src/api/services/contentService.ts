@@ -26,24 +26,18 @@ export const createContent = async (payload: CreateContentPayload): Promise<Cont
   formData.append('category', payload.category);
   formData.append('contentName', payload.contentName);
   formData.append('url', payload.url);
-  if (payload.previewImageFile) {
-    formData.append('previewImageFile', payload.previewImageFile);
-  }
-  return (await apiClient.post<Content>('/contents', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  })).data;
+  formData.append('date', payload.date);
+  return (await apiClient.post<Content>('/contents', formData)).data;
 };
 
 export const updateContent = async (contentId: number, payload: UpdateContentPayload): Promise<Content> => {
   const formData = new FormData();
-  // Apenas anexa os campos que foram fornecidos
+
   if (payload.contentName) formData.append('contentName', payload.contentName);
   if (payload.url) formData.append('url', payload.url);
-  if (payload.previewImageFile) formData.append('previewImageFile', payload.previewImageFile);
+  if (payload.date) formData.append('date', payload.date);
 
-  return (await apiClient.put<Content>(`/contents/${contentId}`, formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  })).data;
+  return (await apiClient.put<Content>(`/contents/${contentId}`, formData)).data;
 };
 
 export const deleteContent = async (contentId: number): Promise<void> => {

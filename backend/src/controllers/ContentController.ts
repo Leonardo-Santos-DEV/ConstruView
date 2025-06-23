@@ -41,11 +41,10 @@ export default class ContentController {
   }
 
   static async create(req: Request, res: Response) {
-    const { projectId, category, contentName, url } = req.body;
-    const previewImageFile = req.file;
+    const { projectId, category, contentName, url, date } = req.body;
 
-    if (!projectId || !category || !contentName || !url) {
-      return res.status(400).json({ message: 'All fields are required: projectId, category, contentName, url.' });
+    if (!projectId || !category || !contentName || !url || !date) {
+      return res.status(400).json({ message: 'All fields are required: projectId, category, contentName, url, date.' });
     }
 
     try {
@@ -54,7 +53,7 @@ export default class ContentController {
         category,
         contentName,
         url,
-        previewImageFile
+        date
       });
       return res.status(201).json(newContent);
     } catch (error: any) {
@@ -68,15 +67,18 @@ export default class ContentController {
     if (isNaN(contentId)) {
       return res.status(400).json({ error: 'Content ID must be a valid number' });
     }
+
     try {
       const updated = await ContentService.update(contentId, req.body);
+
       if (!updated) {
         return res.status(404).json({ error: 'Content not found' });
       }
-      return res.status(204).send();
-    } catch (error) {
+
+      return res.status(200).json(updated);
+    } catch (error: any) {
       console.error(`Error in ContentController update for ID ${contentId}:`, error);
-      return res.status(500).json({ error: "Failed to update content" });
+      return res.status(500).json({ error: "Failed to update content", details: error.message });
     }
   }
 

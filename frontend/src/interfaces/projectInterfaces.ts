@@ -16,6 +16,6 @@ export interface CreateProjectPayload {
 
 export interface UpdateProjectPayload {
   projectName?: string;
-  imageUrl?: string;
+  imageFile?: File;
   enabled?: boolean;
 }

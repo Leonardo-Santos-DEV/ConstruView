@@ -1,3 +1,4 @@
+// CÓDIGO ATUALIZADO - COPIAR E COLAR
 import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -12,17 +13,33 @@ import type { Project } from '@/interfaces/projectInterfaces.ts';
 import type { APIError } from '@/interfaces/apiErrorsInterfaces.ts';
 import { getProject } from '@/api/services/projectService';
 import { createContent, getContentsByProjectAndCategory, updateContent, deleteContent } from '@/api/services/contentService';
-import { ContentCard } from "@/components/ContentCard.tsx";
 import { TbView360Arrow } from "react-icons/tb";
 import { ContentForm } from "@/components/ContentForm.tsx";
 import { Modal } from "@/components/Modal.tsx";
-import { useAuth } from "@/context/AuthContext.tsx";
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
+import { ContentListItem } from '@/components/ContentListItem'; // Importa o novo componente
+
+// Função para agrupar conteúdos por data
+const groupContentByDate = (views: Content[]) => {
+  const grouped: { [key: string]: Content[] } = {};
+  views.forEach(view => {
+    const date = new Date(view.date).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC' // Garante consistência de fuso horário
+    });
+    if (!grouped[date]) {
+      grouped[date] = [];
+    }
+    grouped[date].push(view);
+  });
+  return grouped;
+};
 
 export const ThreeSixtyGalleryScreen: React.FC = () => {
   const { projectId } = useParams<{ projectId: string }>();
-  const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -32,12 +49,10 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
   const [contentToDelete, setContentToDelete] = useState<Content | null>(null);
 
   const navItems = useMemo(() => projectId ? getProjectCategoryNavItems(projectId, navigate) : [], [projectId, navigate]);
-
-  // CORREÇÃO: Padronizando a queryKey
   const galleryQueryKey = ['gallery', projectId, '360view'];
 
   const { data, isLoading: isLoadingScreenData, error: screenError } = useQuery<{project: Project, views: Content[]}, APIError>({
-    queryKey: galleryQueryKey, // Usando a chave padronizada
+    queryKey: galleryQueryKey,
     queryFn: async () => {
       if (!projectId) throw new Error("Project ID is required");
       const [projectData, viewsData] = await Promise.all([
@@ -58,31 +73,30 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
       return createContent(payload as CreateContentPayload);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: galleryQueryKey }); // Usando a chave padronizada
+      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
       setIsFormModalOpen(false);
-      toast.success('View saved successfully!');
+      toast.success('Vista salva com sucesso!');
     },
-    onError: (e: APIError) => toast.error(`Error saving view: ${e.message}`),
+    onError: (e: APIError) => toast.error(`Erro ao salvar a vista: ${e.message}`),
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteContent,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: galleryQueryKey }); // Usando a chave padronizada
+      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
       setIsConfirmModalOpen(false);
-      toast.success('View deleted successfully!');
+      toast.success('Vista deletada com sucesso!');
     },
-    onError: (e: APIError) => toast.error(`Error deleting view: ${e.message}`),
+    onError: (e: APIError) => toast.error(`Erro ao deletar a vista: ${e.message}`),
   });
 
-  const handleFormSubmit = (data: { contentName: string; url: string; previewImageFile?: FileList }) => {
+  const handleFormSubmit = (data: { contentName: string; url: string; date: string; }) => {
     if (!projectId) return;
-    const imageFile = data.previewImageFile && data.previewImageFile[0] ? data.previewImageFile[0] : undefined;
 
     if (editingContent) {
-      contentMutation.mutate({ payload: { ...data, previewImageFile: imageFile }, editingId: editingContent.contentId });
+      contentMutation.mutate({ payload: data, editingId: editingContent.contentId });
     } else {
-      contentMutation.mutate({ payload: { ...data, projectId: +projectId, category: '360view', previewImageFile: imageFile } });
+      contentMutation.mutate({ payload: { ...data, projectId: +projectId, category: '360view' } });
     }
   };
 
@@ -113,9 +127,11 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
     }
   };
 
+  const groupedViews = data ? groupContentByDate(data.views) : {};
+
   return (
     <>
-      <ScreenStatusHandler isLoading={isLoadingScreenData} error={screenError} data={data} navItems={navItems} notFoundMessage="Project not found.">
+      <ScreenStatusHandler isLoading={isLoadingScreenData} error={screenError} data={data} navItems={navItems} notFoundMessage="Projeto não encontrado ou você não tem permissão para acessá-lo.">
         {(loadedData) => (
           <PageWrapper hasSidebar={true}>
             <AppNavigation items={navItems} />
@@ -123,18 +139,28 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
               <AppHeader projectTitle={loadedData.project.projectName} screenTitle="360° Views" screenIcon={TbView360Arrow}/>
               <main className="px-4 py-4 flex-grow overflow-y-auto">
                 {loadedData.views.length === 0 && !isLoadingScreenData && (
-                  <p className="text-center text-slate-300">No 360 views found for this project.</p>
-                )}
-                <div className="max-w-6xl mx-auto">
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {loadedData.views.map((view) => (
-                      <ContentCard key={view.contentId} view={view}
-                                   onClick={() => handleViewClick(view.contentId)}
-                                   onEdit={() => openEditModal(view)}
-                                   onDelete={() => handleDeleteRequest(view)}
-                      />
-                    ))}
+                  <div className="text-center text-slate-300 py-10">
+                    <TbView360Arrow size={48} className="mx-auto text-sky-700"/>
+                    <p className="mt-4">Nenhuma vista 360° encontrada para este projeto.</p>
                   </div>
+                )}
+                <div className="max-w-4xl mx-auto space-y-6">
+                  {Object.entries(groupedViews).map(([date, viewsInDate]) => (
+                    <div key={date}>
+                      <h3 className="text-lg font-bold text-sky-200 mb-3 border-b border-sky-800 pb-2">{date}</h3>
+                      <ul className="space-y-2">
+                        {viewsInDate.map((view) => (
+                          <ContentListItem
+                            key={view.contentId}
+                            view={view}
+                            onClick={() => handleViewClick(view.contentId)}
+                            onEdit={() => openEditModal(view)}
+                            onDelete={() => handleDeleteRequest(view)}
+                          />
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               </main>
             </div>
@@ -142,9 +168,9 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
         )}
       </ScreenStatusHandler>
 
-      {user?.isMasterAdmin && <FloatingActionButton onClick={openCreateModal} ariaLabel="Add new 360 view"/>}
+      <FloatingActionButton onClick={openCreateModal} ariaLabel="Adicionar nova vista 360"/>
 
-      <Modal isOpen={isFormModalOpen} onClose={() => setIsFormModalOpen(false)} title={editingContent ? "Edit 360 View" : "Create New 360 View"}>
+      <Modal isOpen={isFormModalOpen} onClose={() => setIsFormModalOpen(false)} title={editingContent ? "Editar Vista 360°" : "Criar Nova Vista 360°"}>
         <ContentForm
           onSubmit={handleFormSubmit}
           onCancel={() => setIsFormModalOpen(false)}
@@ -158,8 +184,9 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
         isOpen={isConfirmModalOpen}
         onClose={() => setIsConfirmModalOpen(false)}
         onConfirm={confirmDelete}
-        title="Confirm Deletion"
-        message={`Are you sure you want to delete the view "${contentToDelete?.contentName}"?`}
+        title="Confirmar Exclusão"
+        message={`Tem certeza que deseja deletar a vista "${contentToDelete?.contentName}"?`}
+        confirmButtonText="Deletar"
         isConfirming={deleteMutation.isPending}
       />
     </>

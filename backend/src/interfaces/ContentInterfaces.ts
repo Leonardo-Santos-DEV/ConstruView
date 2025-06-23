@@ -10,13 +10,13 @@ export interface CreateContentPayload {
   category: string;
   contentName: string;
   url: string;
-  previewImageFile?: Express.Multer.File;
+  date: string;
 }
 
 export interface UpdateContentPayload {
   contentName?: string;
   url?: string;
-  previewImageUrl?: string;
+  date: string;
   enabled?: boolean;
 }
 
@@ -26,7 +26,7 @@ export interface Content {
   category: string;
   contentName: string;
   url: string;
-  previewImageUrl: string;
+  date: string;
   enabled: boolean;
   createdAt: Date;
   updatedAt: Date;

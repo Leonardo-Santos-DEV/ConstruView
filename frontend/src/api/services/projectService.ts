@@ -43,8 +43,21 @@ export const createProject = async (payload: CreateProjectPayload): Promise<Proj
 };
 
 export const updateProject = async (projectId: number, payload: UpdateProjectPayload): Promise<void> => {
+  const formData = new FormData();
+
+  if (payload.projectName) {
+    formData.append('projectName', payload.projectName);
+  }
+  if (payload.imageFile) {
+    formData.append('imageFile', payload.imageFile);
+  }
+
   try {
-    await apiClient.put(`/projects/${projectId}`, payload);
+    await apiClient.put(`/projects/${projectId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   } catch (error) {
     console.error(`Error updating project ${projectId}:`, error);
     throw error;

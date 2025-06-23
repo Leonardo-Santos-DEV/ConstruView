@@ -2,8 +2,9 @@ import Project from "../models/Project";
 import Permission from "../models/Permission";
 import User from "../models/User";
 import sequelize from '../config/database';
-import { CreateProjectPayload, UpdateProjectPayload } from '../interfaces/ProjectInterfaces';
-import { loginResponse as AuthenticatedUser } from '../interfaces/AuthInterfaces';
+import {CreateProjectPayload, UpdateProjectPayload} from '../interfaces/ProjectInterfaces';
+import {loginResponse as AuthenticatedUser} from '../interfaces/AuthInterfaces';
+import {uploadImageToCloudinary} from "../helpers/uploadImageToCloudinary";
 
 export default class ProjectService {
 
@@ -54,12 +55,22 @@ export default class ProjectService {
     }
   }
 
-  static async update(id: number, payload: UpdateProjectPayload): Promise<Project | null> {
+  static async update(id: number, payload: UpdateProjectPayload, file?: Express.Multer.File): Promise<Project | null> {
     const project = await Project.findByPk(id);
     if (!project) {
       return null;
     }
-    await project.update(payload);
+
+    const dataToUpdate: { [key: string]: any } = { ...payload };
+
+    if (file) {
+      if (!process.env.CLOUDINARY_CLOUD_NAME) {
+        throw new Error('Cloudinary configuration is missing.');
+      }
+      dataToUpdate.imageUrl = await uploadImageToCloudinary(file.buffer);
+    }
+
+    await project.update(dataToUpdate);
     return project;
   }
 

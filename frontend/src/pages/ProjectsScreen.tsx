@@ -103,18 +103,27 @@ export const ProjectsScreen: React.FC = () => {
   const handleFormSubmit = (data: { projectName: string; imageFile?: FileList; clientId?: string }) => {
     if (!user) return;
 
+    const imageFile = data.imageFile && data.imageFile.length > 0 ? data.imageFile[0] : undefined;
+
     if (editingProject) {
+      // Cria o payload de atualização
+      const payload: UpdateProjectPayload = {
+        projectName: data.projectName,
+      };
+      if (imageFile) {
+        payload.imageFile = imageFile;
+      }
       updateMutation.mutate({
-        payload: { projectName: data.projectName },
+        payload,
         editingId: editingProject.projectId
       });
-    } else {
+
+    } else { // Lógica de criação permanece a mesma
       const targetClientId = user.isMasterAdmin ? Number(data.clientId) : user.clientId;
       if (!targetClientId) {
         toast.error("A client must be selected.");
         return;
       }
-      const imageFile = data.imageFile && data.imageFile.length > 0 ? data.imageFile[0] : undefined;
       const payload: CreateProjectPayload = {
         projectName: data.projectName,
         imageFile: imageFile,

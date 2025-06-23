@@ -1,7 +1,6 @@
 import Content from '../models/Content';
 import Project from "../models/Project";
-import { uploadImageToCloudinary } from "../helpers/uploadImageToCloudinary";
-import { CreateContentPayload } from '../interfaces/ContentInterfaces';
+import {CreateContentPayload, UpdateContentPayload} from '../interfaces/ContentInterfaces';
 
 export default class ContentService {
   static async getAll(payload: { projectId: number, category?: string }) {
@@ -17,7 +16,7 @@ export default class ContentService {
     return Content.findAll({
       where: whereClause,
       include: [{ model: Project, as: 'project' }],
-      order: [['createdAt', 'DESC']]
+      order: [['date', 'DESC'], ['createdAt', 'DESC']]
     });
   }
 
@@ -26,39 +25,33 @@ export default class ContentService {
   }
 
   static async create(payload: CreateContentPayload) {
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      console.error("Cloudinary configuration is missing.");
-      throw new Error('Internal server error: Image upload service not configured.');
-    }
-
-    let previewImageUrl = process.env.DEFAULT_IMAGE ?? 'https://res.cloudinary.com/dfpdfsuv3/image/upload/v1749297418/vr6d7yslybmfi4ctrbxt.png';
-
-    if (payload.previewImageFile) {
-      previewImageUrl = await uploadImageToCloudinary(payload.previewImageFile.buffer);
-    }
-
     const contentData = {
       projectId: payload.projectId,
       category: payload.category,
       contentName: payload.contentName,
       url: payload.url,
-      previewImageUrl,
+      date: new Date(payload.date),
       enabled: true,
     };
 
     const newContentInstance = await Content.create(contentData);
-
     return this.getById(newContentInstance.contentId);
   }
 
-  static async update(contentId: number, payload: any) {
+  static async update(contentId: number, payload: UpdateContentPayload): Promise<Content | null> {
     const content = await Content.findByPk(contentId);
     if (!content) return null;
-    await content.update(payload);
-    return Content.findByPk(contentId);
+
+    const dataToUpdate: { [key: string]: any } = { ...payload };
+    if (payload.date) {
+      dataToUpdate.date = new Date(payload.date);
+    }
+
+    await content.update(dataToUpdate);
+    return this.getById(contentId);
   }
 
-  static async disable(contentId: number) {
+  static async disable(contentId: number): Promise<Content | null> {
     const content = await Content.findByPk(contentId);
     if (!content) return null;
     await content.update({ enabled: false });

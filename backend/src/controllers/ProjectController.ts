@@ -70,9 +70,11 @@ export default class ProjectController {
     }
 
     const payload: UpdateProjectPayload = req.body;
+    const imageFile = req.file;
 
     try {
-      const updatedProject = await ProjectService.update(projectId, payload);
+      const updatedProject = await ProjectService.update(projectId, payload, imageFile);
+
       if (!updatedProject) {
         return res.status(404).json({ error: 'Project not found' });
       }

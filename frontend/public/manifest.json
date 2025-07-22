@@ -453,8 +453,16 @@
   ],
   "theme_color": "#0e4574",
   "background_color": "#0e4574",
-  "display": "standalone",
+  "display": "fullscreen",
   "lang": "en",
   "dir": "ltr",
-  "start_url": "/"
+  "start_url": "/",
+  "orientation": "natural",
+  "display_override": [
+    "fullscreen",
+    "minimal-ui",
+    "standalone",
+    "window-controls-overlay",
+    "browser"
+  ]
 }

@@ -19,7 +19,7 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in"
     >
       <div
-        onClick={(e) => e.stopPropagation()} // Impede que o clique no modal o feche
+        onClick={(e) => e.stopPropagation()}
         className="relative bg-sky-800 border border-sky-700 rounded-xl shadow-2xl w-full max-w-md m-4 animate-slide-in-up"
       >
         <div className="flex items-center justify-between p-4 border-b border-sky-700">

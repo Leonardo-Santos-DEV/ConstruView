@@ -1,21 +1,21 @@
 export interface Project {
   projectId: number;
   projectName: string;
+  imageUrl: string;
   clientId: number;
-  imageUrl?: string;
   enabled: boolean;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CreateProjectPayload {
   projectName: string;
-  imageFile?: File;
   clientId: number;
+  imageUrl: string;
 }
 
 export interface UpdateProjectPayload {
   projectName?: string;
-  imageFile?: File;
+  imageUrl?: string;
   enabled?: boolean;
 }

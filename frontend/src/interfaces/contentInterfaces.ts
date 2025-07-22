@@ -1,3 +1,4 @@
+// CÓDIGO ATUALIZADO - COPIAR E COLAR
 import type {Project} from "@/interfaces/projectInterfaces.ts";
 
 export interface Content {
@@ -6,7 +7,7 @@ export interface Content {
   category: string;
   contentName: string;
   url: string;
-  previewImageUrl?: string;
+  date: string;
   enabled: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -23,5 +24,11 @@ export interface CreateContentPayload {
   category: '360view';
   contentName: string;
   url: string;
-  previewImageFile?: File;
+  date: string;
+}
+
+export interface UpdateContentPayload {
+  contentName?: string;
+  url?: string;
+  date: string;
 }

@@ -7,7 +7,7 @@ export default class Content extends Model {
   public category: string;
   public contentName: string;
   public url: string;
-  previewImageUrl: string;
+  public date!: Date;
   public enabled!: boolean;
 }
 
@@ -18,7 +18,7 @@ Content.init(
     category: { type: DataTypes.STRING, allowNull: false },
     contentName: { type: DataTypes.STRING, allowNull: false },
     url: { type: DataTypes.STRING, allowNull: false },
-    previewImageUrl: { type: DataTypes.STRING, allowNull: true },
+    date: { type: DataTypes.DATE, allowNull: false },
     enabled: { type: DataTypes.BOOLEAN, defaultValue: true }
   },
   { sequelize, modelName: 'content' });

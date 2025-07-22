@@ -1,5 +1,6 @@
+// CÓDIGO ATUALIZADO - COPIAR E COLAR
 import apiClient from '../apiClient';
-import type {Content, CreateContentPayload, GetContentsPayload} from '@/interfaces/contentInterfaces.ts';
+import type {Content, CreateContentPayload, GetContentsPayload, UpdateContentPayload} from '@/interfaces/contentInterfaces.ts';
 
 export const getContentsByProjectAndCategory = async (payload: GetContentsPayload): Promise<Content[]> => {
   try {
@@ -21,24 +22,24 @@ export const getContentById = async (contentId: string): Promise<Content> => {
 
 export const createContent = async (payload: CreateContentPayload): Promise<Content> => {
   const formData = new FormData();
-
   formData.append('projectId', String(payload.projectId));
   formData.append('category', payload.category);
   formData.append('contentName', payload.contentName);
   formData.append('url', payload.url);
+  formData.append('date', payload.date);
+  return (await apiClient.post<Content>('/contents', formData)).data;
+};
 
-  if (payload.previewImageFile) {
-    formData.append('previewImageFile', payload.previewImageFile);
-  }
+export const updateContent = async (contentId: number, payload: UpdateContentPayload): Promise<Content> => {
+  const formData = new FormData();
 
-  try {
-    return (await apiClient.post<Content>('/contents', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    })).data;
-  } catch (error) {
-    console.error('Error creating content:', error);
-    throw error;
-  }
+  if (payload.contentName) formData.append('contentName', payload.contentName);
+  if (payload.url) formData.append('url', payload.url);
+  if (payload.date) formData.append('date', payload.date);
+
+  return (await apiClient.put<Content>(`/contents/${contentId}`, formData)).data;
+};
+
+export const deleteContent = async (contentId: number): Promise<void> => {
+  await apiClient.delete(`/contents/${contentId}`);
 };

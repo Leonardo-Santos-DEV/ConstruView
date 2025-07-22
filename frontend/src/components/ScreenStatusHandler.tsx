@@ -39,7 +39,7 @@ function ScreenStatusHandler<TData>({
             <p className="text-slate-300 mb-6">Sua sessão expirou ou você não tem permissão. Por favor, faça o login
               novamente.</p>
             <button
-              onClick={logoutUser} // 2. O botão agora chama a função de logout
+              onClick={logoutUser}
               className="flex items-center gap-2 bg-cyan-500 text-white font-semibold px-6 py-3 rounded-lg hover:bg-cyan-600 transition-colors"
             >
               <FaSignInAlt/>

@@ -464,5 +464,7 @@
     "standalone",
     "window-controls-overlay",
     "browser"
-  ]
+  ],
+  "description": "Construview é a plataforma completa para construtoras, arquitetos e engenheiros gerenciarem projetos, compartilharem atualizações com clientes e centralizarem toda a documentação da obra.",
+  "id": "ConstruView"
 }

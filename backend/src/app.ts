@@ -13,8 +13,21 @@ import cors from 'cors';
 
 const app = express();
 
+const allowedOrigins = [
+  'https:\\/\\/.*\\.construview.ai',
+  /http:\/\/localhost:\d+/,
+  /https:\/\/.*\.onrender\.com/,
+  /https:\/\/.*\.leonardosantos\.dev/
+];
+
 const corsOptions = {
-  origin: /^(http:\/\/localhost:\d+|https:\/\/.*\.onrender\.com|https:\/\/construview\.ai|https:\/\/.*\.leonardosantos\.dev)$/,
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.some(o => o instanceof RegExp ? o.test(origin) : o === origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Não permitido pela política de CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,

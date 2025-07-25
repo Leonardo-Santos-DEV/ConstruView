@@ -14,10 +14,8 @@ import cors from 'cors';
 const app = express();
 
 const allowedOrigins = [
-  'https:\\/\\/.*\\.construview.ai',
+  /https:\/\/.*\.construview\.ai/,
   /http:\/\/localhost:\d+/,
-  /https:\/\/.*\.onrender\.com/,
-  /https:\/\/.*\.leonardosantos\.dev/
 ];
 
 const corsOptions = {

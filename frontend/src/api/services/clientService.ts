@@ -38,7 +38,15 @@ export const updateClient = async (clientId: number, payload: UpdateClientPayloa
   }
 };
 
-// Alterado o tipo de retorno de Promise<void> para Promise<Client>
+export const setClientAdmin = async (clientId: number, userId: number): Promise<void> => {
+  try {
+    await apiClient.post(`/clients/${clientId}/admin`, { userId });
+  } catch (error) {
+    console.error(`Error setting client admin for client ${clientId}:`, error);
+    throw error;
+  }
+};
+
 export const disableClient = async (clientId: number): Promise<Client> => {
   try {
     return (await apiClient.delete(`/clients/${clientId}`)).data;

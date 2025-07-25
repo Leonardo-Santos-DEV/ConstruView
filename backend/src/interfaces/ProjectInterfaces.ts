@@ -4,6 +4,7 @@ export interface Project {
   imageUrl: string;
   clientId: number;
   enabled: boolean;
+  permissionLevel?: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -17,6 +17,9 @@ import { Modal } from '@/components/Modal';
 import { ClientForm } from '@/components/ClientForm';
 import { ToggleSwitch } from "@/components/ToggleSwitch.tsx";
 import { FloatingActionButton } from '@/components/FloatingActionButton';
+import { FaUserShield } from "react-icons/fa6";
+import { setClientAdmin } from "@/api/services/clientService";
+import {SetAdminModal} from "@/components/SetAdminModal.tsx";
 
 export const ClientsScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -25,6 +28,9 @@ export const ClientsScreen: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [isSetAdminModalOpen, setIsSetAdminModalOpen] = useState(false);
+  const [clientForAdminSelection, setClientForAdminSelection] = useState<Client | null>(null);
+
 
   const navItems = useMemo(() => getTopLevelNavItems(user, navigate), [user, navigate]);
 
@@ -64,6 +70,18 @@ export const ClientsScreen: React.FC = () => {
     onError: (e: APIError) => toast.error(`Failed to update status: ${e.message}`),
   });
 
+  const setAdminMutation = useMutation({
+    mutationFn: (variables: { clientId: number, userId: number }) =>
+      setClientAdmin(variables.clientId, variables.userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] }); // Invalida cache de usuários
+      queryClient.invalidateQueries({ queryKey: ['clients'] });
+      toast.success('Client Admin updated successfully!');
+      setIsSetAdminModalOpen(false);
+    },
+    onError: (e: APIError) => toast.error(`Failed to set admin: ${e.message}`),
+  });
+
   const handleOpenCreateModal = () => {
     setSelectedClient(null);
     setIsModalOpen(true);
@@ -73,6 +91,17 @@ export const ClientsScreen: React.FC = () => {
     setSelectedClient(client);
     setIsModalOpen(true);
   }
+
+  const handleOpenSetAdminModal = (client: Client) => {
+    setClientForAdminSelection(client);
+    setIsSetAdminModalOpen(true);
+  };
+
+  const handleConfirmSetAdmin = (userId: number) => {
+    if (clientForAdminSelection) {
+      setAdminMutation.mutate({ clientId: clientForAdminSelection.clientId, userId });
+    }
+  };
 
   const handleFormSubmit = (data: { clientName: string }) => {
     if (selectedClient) {
@@ -126,6 +155,15 @@ export const ClientsScreen: React.FC = () => {
                             >
                               Manage Users
                             </button>
+                            {user?.isMasterAdmin && client.clientId > 1 && (
+                              <button
+                                onClick={() => handleOpenSetAdminModal(client)}
+                                className="text-sm font-medium text-amber-400 hover:text-amber-300 flex items-center gap-1"
+                                title="Set Client Admin"
+                              >
+                                <FaUserShield /> Set Admin
+                              </button>
+                            )}
                           </div>
                         </li>
                       ))}
@@ -148,6 +186,14 @@ export const ClientsScreen: React.FC = () => {
           isSubmitting={isSubmitting}
         />
       </Modal>
+
+      <SetAdminModal
+        isOpen={isSetAdminModalOpen}
+        onClose={() => setIsSetAdminModalOpen(false)}
+        onConfirm={handleConfirmSetAdmin}
+        client={clientForAdminSelection}
+        isConfirming={setAdminMutation.isPending}
+      />
     </>
   );
 };

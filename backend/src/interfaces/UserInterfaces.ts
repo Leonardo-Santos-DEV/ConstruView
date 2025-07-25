@@ -4,6 +4,7 @@ export interface User {
   userName: string;
   email: string;
   isMasterAdmin: boolean;
+  isClientAdmin: boolean;
   enabled: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -21,4 +22,5 @@ export interface UpdateUserPayload {
   email?: string;
   password?: string;
   enabled?: boolean;
+  isClientAdmin: boolean;
 }

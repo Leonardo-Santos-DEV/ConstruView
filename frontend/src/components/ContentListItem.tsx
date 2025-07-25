@@ -4,6 +4,7 @@ import { TbView360Arrow } from 'react-icons/tb';
 import type {ContentListItemProps} from "@/interfaces/componentsInterfaces.ts";
 
 export const ContentListItem: React.FC<ContentListItemProps> = ({ view, onClick, onEdit, onDelete }) => {
+  let showActions;
   return (
     <li className="flex items-center justify-between p-4 bg-sky-900/50 rounded-lg transition-colors hover:bg-sky-800/60">
       <button onClick={onClick} className="flex items-center gap-4 flex-grow text-left">
@@ -15,7 +16,7 @@ export const ContentListItem: React.FC<ContentListItemProps> = ({ view, onClick,
           <p className="text-sm text-slate-400">Clique para visualizar</p>
         </div>
       </button>
-
+      {showActions && (
         <div className="flex items-center gap-3 shrink-0 ml-4">
           <button
             onClick={onEdit}
@@ -32,6 +33,7 @@ export const ContentListItem: React.FC<ContentListItemProps> = ({ view, onClick,
             <FiTrash2 size={18} />
           </button>
         </div>
+      )}
     </li>
   );
 };

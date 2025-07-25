@@ -27,6 +27,7 @@ export interface ContentListItemProps {
   onClick: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  showActions: boolean;
 }
 
 export interface ScreenStatusHandlerProps<TData> {

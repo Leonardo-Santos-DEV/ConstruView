@@ -12,5 +12,6 @@ router.get('/:id', permissionMiddleware(2), ClientController.getById);
 router.post('/', permissionMiddleware(2), ClientController.create);
 router.put('/:id', permissionMiddleware(2), ClientController.update);
 router.delete('/:id', permissionMiddleware(2), ClientController.disable);
+router.post('/:id/admin', permissionMiddleware(3), ClientController.setClientAdmin);
 
 export default router;

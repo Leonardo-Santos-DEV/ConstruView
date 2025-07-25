@@ -18,7 +18,14 @@ import { ContentForm } from "@/components/ContentForm.tsx";
 import { Modal } from "@/components/Modal.tsx";
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { ConfirmationModal } from '@/components/ConfirmationModal';
-import { ContentListItem } from '@/components/ContentListItem'; // Importa o novo componente
+import { ContentListItem } from '@/components/ContentListItem';
+import {useAuth} from "@/context/AuthContext.tsx"; // Importa o novo componente
+
+const PERMISSION_LEVELS = {
+  VIEWER: 1,
+  CONTENT_MANAGER: 2,
+  PROJECT_MANAGER: 3,
+};
 
 // Função para agrupar conteúdos por data
 const groupContentByDate = (views: Content[]) => {
@@ -39,6 +46,7 @@ const groupContentByDate = (views: Content[]) => {
 };
 
 export const ThreeSixtyGalleryScreen: React.FC = () => {
+  const { user } = useAuth();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -55,10 +63,8 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
     queryKey: galleryQueryKey,
     queryFn: async () => {
       if (!projectId) throw new Error("Project ID is required");
-      const [projectData, viewsData] = await Promise.all([
-        getProject(+projectId),
-        getContentsByProjectAndCategory({ projectId: +projectId, category: '360view' })
-      ]);
+      const projectData = await getProject(+projectId);
+      const viewsData = await getContentsByProjectAndCategory({ projectId: +projectId, category: '360view' });
       return { project: projectData, views: viewsData };
     },
     enabled: !!projectId,
@@ -128,6 +134,7 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
   };
 
   const groupedViews = data ? groupContentByDate(data.views) : {};
+  const canManageContent = user?.isMasterAdmin || (data?.project.permissionLevel ?? 0) >= PERMISSION_LEVELS.CONTENT_MANAGER;
 
   return (
     <>
@@ -156,6 +163,7 @@ export const ThreeSixtyGalleryScreen: React.FC = () => {
                             onClick={() => handleViewClick(view.contentId)}
                             onEdit={() => openEditModal(view)}
                             onDelete={() => handleDeleteRequest(view)}
+                            showActions={canManageContent}
                           />
                         ))}
                       </ul>

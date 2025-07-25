@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import UserService from "../services/UserService";
+import {UpdateUserPayload} from "../interfaces/UserInterfaces";
 
 export default class UserController {
   static async getAll(req: Request, res: Response) {
@@ -19,7 +20,13 @@ export default class UserController {
   }
 
   static async update(req: Request, res: Response) {
-    const user = await UserService.update(Number(req.params.id), req.body);
+    const payload: UpdateUserPayload = req.body;
+
+    if (payload.isClientAdmin !== undefined) {
+      return res.status(403).json({ message: "Admin status cannot be changed through this endpoint. Use the client administration endpoint." });
+    }
+
+    const user = await UserService.update(Number(req.params.id), payload);
     if (!user) return res.status(404).json({error: 'User not found'});
     return res.json(user);
   }

@@ -1,0 +1,5 @@
+export const PERMISSION_LEVELS = {
+  VIEWER: 1,
+  CONTENT_MANAGER: 2,
+  PROJECT_MANAGER: 3,
+};

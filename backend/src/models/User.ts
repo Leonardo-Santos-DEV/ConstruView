@@ -8,6 +8,7 @@ export default class User extends Model {
   public email: string;
   public password: string;
   public isMasterAdmin: boolean;
+  public isClientAdmin: boolean;
   public enabled: boolean;
 }
 
@@ -18,5 +19,6 @@ User.init({
     email: { type: DataTypes.STRING, unique: true, allowNull: false },
     password: { type: DataTypes.STRING, allowNull: false },
     isMasterAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
+    isClientAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
     enabled: { type: DataTypes.BOOLEAN, defaultValue: true }},
     { sequelize, modelName: 'user' });

@@ -4,6 +4,7 @@ export interface User {
   userName: string;
   email: string;
   isMasterAdmin: boolean;
+  isClientAdmin: boolean;
   enabled: boolean;
 }
 

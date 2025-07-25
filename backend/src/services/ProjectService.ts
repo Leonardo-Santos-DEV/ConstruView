@@ -1,19 +1,47 @@
+// ATENÇÃO: Substitua o arquivo inteiro para garantir que todas as importações e lógicas estejam corretas.
+
+import { Op } from 'sequelize';
 import Project from "../models/Project";
 import Permission from "../models/Permission";
 import User from "../models/User";
 import sequelize from '../config/database';
-import {CreateProjectPayload, UpdateProjectPayload} from '../interfaces/ProjectInterfaces';
-import {loginResponse as AuthenticatedUser} from '../interfaces/AuthInterfaces';
-import {uploadImageToCloudinary} from "../helpers/uploadImageToCloudinary";
+import { CreateProjectPayload, UpdateProjectPayload } from '../interfaces/ProjectInterfaces';
+import { loginResponse as AuthenticatedUser } from '../interfaces/AuthInterfaces';
+import { uploadImageToCloudinary } from "../helpers/uploadImageToCloudinary";
+import { PERMISSION_LEVELS } from "../helpers/permissionLevels";
 
 export default class ProjectService {
 
   static async getAll(user: AuthenticatedUser): Promise<Project[]> {
     if (user.isMasterAdmin) {
       return Project.findAll({ where: { enabled: true } });
-    } else {
-      return Project.findAll({ where: { clientId: user.clientId, enabled: true } });
     }
+
+    // CORREÇÃO: Busca apenas os projetos onde o usuário tem um nível de permissão maior que 0.
+    const permissions = await Permission.findAll({
+      where: {
+        userId: user.userId,
+        level: {
+          [Op.gt]: 0 // Op.gt significa "greater than" (maior que)
+        }
+      },
+      attributes: ['projectId']
+    });
+
+    if (permissions.length === 0) {
+      return []; // Se não tem permissões, retorna uma lista vazia.
+    }
+
+    const projectIds = permissions.map(p => p.projectId);
+
+    return Project.findAll({
+      where: {
+        projectId: {
+          [Op.in]: projectIds
+        },
+        enabled: true
+      }
+    });
   }
 
   static async getById(projectId: number, user: AuthenticatedUser): Promise<Project | null> {
@@ -23,12 +51,34 @@ export default class ProjectService {
     };
 
     if (!user.isMasterAdmin) {
+      // Esta verificação de clientId é uma segunda camada de segurança.
       whereClause.clientId = user.clientId;
     }
 
-    return Project.findOne({ where: whereClause });
+    const project = await Project.findOne({ where: whereClause, raw: true });
+
+    if (!project) {
+      return null;
+    }
+
+    const permission = await Permission.findOne({
+      where: { userId: user.userId, projectId: project.projectId }
+    });
+
+    const permissionLevel = user.isMasterAdmin ? 99 : (permission ? permission.level : 0);
+
+    // CORREÇÃO: Se o nível de permissão for 0 (Sem Acesso), trata como se o projeto não fosse encontrado.
+    // Isso impede o acesso direto via URL.
+    if (permissionLevel < PERMISSION_LEVELS.VIEWER) {
+      return null;
+    }
+
+    (project as any).permissionLevel = permissionLevel;
+
+    return project;
   }
 
+  // O restante dos métodos (create, update, disable) permanece o mesmo do seu arquivo original
   static async create(payload: CreateProjectPayload): Promise<Project> {
     const t = await sequelize.transaction();
     try {

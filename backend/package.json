@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon",
-    "start": "npx sequelize-cli db:migrate && node dist/server.js"
+    "migrate": "npx sequelize-cli db:migrate",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "axios": "^1.9.0",

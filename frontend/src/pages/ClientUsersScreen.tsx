@@ -73,9 +73,10 @@ export const ClientUsersScreen: React.FC = () => {
     setTogglingUserId(user.userId);
     try {
       const updatedUser = await updateUser(user.userId, {enabled: !user.enabled});
-      setUsers(prevUsers => prevUsers.map(u => u.userId === user.userId ? updatedUser : u));
+      queryClient.invalidateQueries({ queryKey: ['users', clientId] });
+      toast.success('User status updated!');
     } catch (error) {
-      alert("Failed to update user status.");
+      toast.error("Failed to update user status.");
     } finally {
       setTogglingUserId(null);
     }
@@ -95,9 +96,11 @@ export const ClientUsersScreen: React.FC = () => {
         const newUser = await createUser({...data, clientId: +clientId});
         setUsers(prevUsers => [...prevUsers, newUser]);
       }
+      queryClient.invalidateQueries({ queryKey: ['users', clientId] });
       setIsModalOpen(false);
+      toast.success('User saved successfully!');
     } catch (error) {
-      alert("Error saving user.");
+      toast.error("Error saving user.");
     } finally {
       setIsSubmitting(false);
     }

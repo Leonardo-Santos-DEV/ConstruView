@@ -1,6 +1,6 @@
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'react-hot-toast';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
 import { APP_ROUTES } from "./helpers/constants";
 import { LoginScreen } from "./pages/LoginScreen";
 import { ProjectsScreen } from "./pages/ProjectsScreen";
@@ -15,11 +15,12 @@ import { AdminRouteVerify } from "@/components/AdminRouteVerify.tsx";
 import { ClientsScreen } from "@/pages/ClientsScreen.tsx";
 import { ClientUsersScreen } from "@/pages/ClientUsersScreen.tsx";
 import { ProtectedRouteVerify } from "@/components/ProtectedRouteVerify.tsx";
+import { SharedContentView } from "./pages/SharedContentView";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutos de cache
+      staleTime: 1000 * 60 * 5,
       refetchOnWindowFocus: false,
       retry: 1,
     },
@@ -33,17 +34,60 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path={APP_ROUTES.LOGIN} element={<LoginScreen />} />
+            <Route path="/share/:token" element={<SharedContentView />} />
             <Route element={<ProtectedRouteVerify />}>
               <Route path={APP_ROUTES.PROJECTS} element={<ProjectsScreen />} />
-              <Route path={APP_ROUTES.PROJECT_DETAIL_BASE + "/:projectId"} element={<ProjectDetailScreen />} />
-              <Route path={APP_ROUTES.PROJECT_DETAIL_BASE + "/:projectId" + APP_ROUTES.DOCS_RELATIVE} element={<DocsScreen />} />
-              <Route path={APP_ROUTES.PROJECT_DETAIL_BASE + "/:projectId" + APP_ROUTES.THREE_SIXTY_GALLERY_RELATIVE} element={<ThreeSixtyGalleryScreen />} />
-              <Route path={APP_ROUTES.PROJECT_DETAIL_BASE + "/:projectId" + APP_ROUTES.THREE_SIXTY_VIEW_RELATIVE + "/:viewId"} element={<ThreeSixtyViewScreen />} />
-              <Route path={APP_ROUTES.PROJECT_DETAIL_BASE + "/:projectId" + APP_ROUTES.AERIAL_VIEWS_RELATIVE} element={<AerialViewsScreen />} />
-              <Route path={APP_ROUTES.PROJECT_DETAIL_BASE + "/:projectId" + APP_ROUTES.LIVE_CAM_RELATIVE} element={<LiveCamScreen />} />
+              <Route
+                path={APP_ROUTES.PROJECT_DETAIL_BASE + "/:projectId"}
+                element={<ProjectDetailScreen />}
+              />
+              <Route
+                path={
+                  APP_ROUTES.PROJECT_DETAIL_BASE +
+                  "/:projectId" +
+                  APP_ROUTES.DOCS_RELATIVE
+                }
+                element={<DocsScreen />}
+              />
+              <Route
+                path={
+                  APP_ROUTES.PROJECT_DETAIL_BASE +
+                  "/:projectId" +
+                  APP_ROUTES.THREE_SIXTY_GALLERY_RELATIVE
+                }
+                element={<ThreeSixtyGalleryScreen />}
+              />
+              <Route
+                path={
+                  APP_ROUTES.PROJECT_DETAIL_BASE +
+                  "/:projectId" +
+                  APP_ROUTES.THREE_SIXTY_VIEW_RELATIVE +
+                  "/:viewId"
+                }
+                element={<ThreeSixtyViewScreen />}
+              />
+              <Route
+                path={
+                  APP_ROUTES.PROJECT_DETAIL_BASE +
+                  "/:projectId" +
+                  APP_ROUTES.AERIAL_VIEWS_RELATIVE
+                }
+                element={<AerialViewsScreen />}
+              />
+              <Route
+                path={
+                  APP_ROUTES.PROJECT_DETAIL_BASE +
+                  "/:projectId" +
+                  APP_ROUTES.LIVE_CAM_RELATIVE
+                }
+                element={<LiveCamScreen />}
+              />
               <Route element={<AdminRouteVerify />}>
                 <Route path={APP_ROUTES.CLIENTS} element={<ClientsScreen />} />
-                <Route path={`${APP_ROUTES.CLIENT_USERS_BASE}/:clientId/users`} element={<ClientUsersScreen />} />
+                <Route
+                  path={`${APP_ROUTES.CLIENT_USERS_BASE}/:clientId/users`}
+                  element={<ClientUsersScreen />}
+                />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to={APP_ROUTES.LOGIN} />} />
@@ -54,20 +98,20 @@ function App() {
         position="top-right"
         toastOptions={{
           style: {
-            background: '#0F172A',
-            color: '#F8FAFC',
-            border: '1px solid #1E293B',
+            background: "#0F172A",
+            color: "#F8FAFC",
+            border: "1px solid #1E293B",
           },
           success: {
             iconTheme: {
-              primary: '#06B6D4',
-              secondary: '#F8FAFC',
+              primary: "#06B6D4",
+              secondary: "#F8FAFC",
             },
           },
           error: {
             iconTheme: {
-              primary: '#F43F5E',
-              secondary: '#F8FAFC',
+              primary: "#F43F5E",
+              secondary: "#F8FAFC",
             },
           },
         }}

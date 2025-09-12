@@ -1,13 +1,15 @@
 import { Router } from 'express';
 import ContentController from '../controllers/ContentController';
+import ShareController from '../controllers/ShareController';
 import { authMiddleware } from '../middlewares/authMiddleware';
-import {permissionMiddleware} from "../middlewares/permissionMiddleware";
+import { permissionMiddleware } from "../middlewares/permissionMiddleware";
 
 const router = Router();
 
-router.use(authMiddleware);
+router.post('/share', authMiddleware, ShareController.create);
 
 router.use(authMiddleware);
+
 router.get('/', ContentController.getAll);
 router.get('/:id', ContentController.getById);
 router.post('/', permissionMiddleware(2), ContentController.create);

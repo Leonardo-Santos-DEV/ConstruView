@@ -7,8 +7,9 @@ import projectRoutes from './routes/project';
 import userRoutes from './routes/user';
 import sequelize from "./config/database";
 import addDefaultInfos from "./seeders/addDefaultInfos";
-import {setupAssociations} from "./models/associations";
+import { setupAssociations } from "./models/associations";
 import cors from 'cors';
+import ShareController from './controllers/ShareController';
 
 const app = express();
 
@@ -34,6 +35,8 @@ sequelize.sync()
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
+
+app.get('/share/:token', ShareController.view);
 
 app.use('/auth', authRoutes);
 app.use('/clients', clientRoutes);

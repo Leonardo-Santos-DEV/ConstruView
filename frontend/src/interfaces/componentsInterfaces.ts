@@ -8,6 +8,7 @@ export interface AppHeaderProps {
   projectTitle?: string;
   screenTitle?: string;
   screenIcon?: React.ElementType;
+  actions?: React.ReactNode;
 }
 
 export interface ProjectCardProps {
@@ -27,6 +28,7 @@ export interface ContentListItemProps {
   onClick: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onShare: () => void;
 }
 
 export interface ScreenStatusHandlerProps<TData> {

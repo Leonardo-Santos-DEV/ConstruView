@@ -1,21 +1,26 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {useParams, useNavigate} from 'react-router-dom';
-import {PageWrapper} from '../components/PageWrapper';
-import {AppNavigation} from '../components/AppNavigation';
-import {AppHeader} from '../components/AppHeader';
-import ScreenStatusHandler from '../components/ScreenStatusHandler';
-import {getProjectCategoryNavItems} from '@/helpers/constants.tsx';
-import type {Content} from '@/interfaces/contentInterfaces.ts';
-import type {APIError} from '@/interfaces/apiErrorsInterfaces.ts';
-import {getContentById} from '@/api/services/contentService';
-import {TbView360Arrow} from "react-icons/tb";
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { PageWrapper } from "../components/PageWrapper";
+import { AppNavigation } from "../components/AppNavigation";
+import { AppHeader } from "../components/AppHeader";
+import ScreenStatusHandler from "../components/ScreenStatusHandler";
+import { getProjectCategoryNavItems } from "@/helpers/constants.tsx";
+import type { Content } from "@/interfaces/contentInterfaces.ts";
+import type { APIError } from "@/interfaces/apiErrorsInterfaces.ts";
+import { getContentById } from "@/api/services/contentService";
+import { TbView360Arrow } from "react-icons/tb";
+import { FiShare2 } from "react-icons/fi";
+import { ShareModal } from "@/components/ShareModal.tsx";
 
 export const ThreeSixtyViewScreen: React.FC = () => {
-  const {projectId, viewId} = useParams<{ projectId: string; viewId: string }>();
+  const { projectId, viewId } = useParams<{
+    projectId: string;
+    viewId: string;
+  }>();
   const navigate = useNavigate();
 
   const [viewData, setViewData] = useState<Content | null>(null);
-
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isLoadingScreenData, setIsLoadingScreenData] = useState<boolean>(true);
   const [screenError, setScreenError] = useState<APIError | null>(null);
 
@@ -37,7 +42,10 @@ export const ThreeSixtyViewScreen: React.FC = () => {
           setViewData(fetchedView);
         } catch (err) {
           const apiError = err as APIError;
-          console.error(`Failed to load project/view data (View: ${viewId}):`, apiError);
+          console.error(
+            `Failed to load project/view data (View: ${viewId}):`,
+            apiError
+          );
           setScreenError(apiError);
         } finally {
           setIsLoadingScreenData(false);
@@ -45,7 +53,7 @@ export const ThreeSixtyViewScreen: React.FC = () => {
       };
       fetchData();
     } else {
-      setScreenError({ message: 'Project ID or View ID not found in URL.' });
+      setScreenError({ message: "Project ID or View ID not found in URL." });
       setIsLoadingScreenData(false);
     }
   }, [viewId, projectId]);
@@ -55,13 +63,13 @@ export const ThreeSixtyViewScreen: React.FC = () => {
 
     try {
       const url = new URL(viewData.url);
-
-      url.searchParams.set('play', '1');
-      url.searchParams.set('brand', '0');
-      url.searchParams.set('title', '0');
-      url.searchParams.set('search', '0');
-      url.searchParams.set('qs', '1');
-
+      url.searchParams.set("play", "1");
+      url.searchParams.set("brand", "0");
+      url.searchParams.set("title", "0");
+      url.searchParams.set("search", "0");
+      url.searchParams.set("qs", "1");
+      url.searchParams.set("share", "0");
+      url.searchParams.set("mls", "2");
       return url.toString();
     } catch (error) {
       console.error("URL do Matterport é inválida:", viewData.url);
@@ -69,42 +77,59 @@ export const ThreeSixtyViewScreen: React.FC = () => {
     }
   }, [viewData?.url]);
 
-  return (
-    <ScreenStatusHandler
-      isLoading={isLoadingScreenData}
-      error={screenError}
-      data={viewData}
-      navItems={navItems}
-      notFoundMessage="View or project not found."
+  const shareAction = (
+    <button
+      onClick={() => setIsShareModalOpen(true)}
+      className="p-2 rounded-full text-sky-200 hover:bg-sky-700 hover:text-white transition-colors duration-150"
+      aria-label="Share view"
     >
-      {(view) => (
-        <PageWrapper className="flex flex-col" hasSidebar={true}>
-          <AppNavigation items={navItems}/>
-          <div className="md:ml-56 lg:ml-64 flex flex-col flex-grow overflow-hidden">
-            <AppHeader
-              projectTitle={view.project.projectName}
-              screenTitle={`File: ${view.contentName}`}
-              screenIcon={TbView360Arrow}
-            />
+      <FiShare2 size={22} />
+    </button>
+  );
 
-            <main className="flex-grow p-4 flex flex-col">
-              {modifiedMatterportUrl ? (
-                <iframe
-                  src={modifiedMatterportUrl}
-                  title={`360 view of ${view.contentName}`}
-                  className="w-full flex-grow border-0 rounded-2xl shadow-lg"
-                  allowFullScreen
-                  allow="autoplay; fullscreen; web-share; xr-spatial-tracking"
-                ></iframe>
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-sky-900 rounded-2xl">
-                  <p className="text-white">360 view not available.</p>
-                </div>
-              )}
-            </main>
-          </div>
-        </PageWrapper>
-      )}
-    </ScreenStatusHandler>
+  return (
+    <>
+      <ScreenStatusHandler
+        isLoading={isLoadingScreenData}
+        error={screenError}
+        data={viewData}
+        navItems={navItems}
+        notFoundMessage="View or project not found."
+      >
+        {(view) => (
+          <PageWrapper className="flex flex-col" hasSidebar={true}>
+            <AppNavigation items={navItems} />
+            <div className="md:ml-56 lg:ml-64 flex flex-col flex-grow overflow-hidden">
+              <AppHeader
+                projectTitle={view.project.projectName}
+                screenTitle={`File: ${view.contentName}`}
+                screenIcon={TbView360Arrow}
+                actions={shareAction}
+              />
+              <main className="flex-grow p-4 flex flex-col">
+                {modifiedMatterportUrl ? (
+                  <iframe
+                    src={modifiedMatterportUrl}
+                    title={`360 view of ${view.contentName}`}
+                    className="w-full flex-grow border-0 rounded-2xl shadow-lg"
+                    allowFullScreen
+                    allow="autoplay; fullscreen; web-share; xr-spatial-tracking"
+                  ></iframe>
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-sky-900 rounded-2xl">
+                    <p className="text-white">360 view not available.</p>
+                  </div>
+                )}
+              </main>
+            </div>
+          </PageWrapper>
+        )}
+      </ScreenStatusHandler>
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        content={viewData}
+      />
+    </>
   );
 };

@@ -1,15 +1,24 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import logoImage from '@/assets/Logo.png';
-import { useAuth } from '@/context/AuthContext';
-import { APP_ROUTES } from '@/helpers/constants';
-import { IoLogOutOutline } from 'react-icons/io5';
-import type {AppHeaderProps} from "@/interfaces/componentsInterfaces.ts";
+import React from "react";
+import { Link } from "react-router-dom";
+import logoImage from "@/assets/Logo.png";
+import { useAuth } from "@/context/AuthContext";
+import { APP_ROUTES } from "@/helpers/constants";
+import { IoLogOutOutline } from "react-icons/io5";
+import type { AppHeaderProps } from "@/interfaces/componentsInterfaces.ts";
 
-export const AppHeader: React.FC<AppHeaderProps> = ({projectTitle, screenTitle, screenIcon: ScreenIconComponent}) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({
+  projectTitle,
+  screenTitle,
+  screenIcon: ScreenIconComponent,
+  actions,
+}) => {
   const { user, logoutUser } = useAuth();
 
-  const isScreenSpecificMode = !!(projectTitle || screenTitle || ScreenIconComponent);
+  const isScreenSpecificMode = !!(
+    projectTitle ||
+    screenTitle ||
+    ScreenIconComponent
+  );
 
   return (
     <header className="p-4 flex justify-between items-center sticky top-0 bg-sky-800/80 backdrop-blur-md z-20 shrink-0 border-b border-white/10 md:border-b-transparent">
@@ -37,7 +46,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({projectTitle, screenTitle, 
         ) : (
           <>
             <Link to={APP_ROUTES.PROJECTS} aria-label="Projects home page">
-              <img src={logoImage} alt="Logo" className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg" />
+              <img
+                src={logoImage}
+                alt="Logo"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg"
+              />
             </Link>
             {user ? (
               <div className="min-w-0 ml-2">
@@ -45,27 +58,34 @@ export const AppHeader: React.FC<AppHeaderProps> = ({projectTitle, screenTitle, 
                   Hello, {user.userName}
                 </h1>
                 {user.clientName && (
-                  <p className="text-xs sm:text-sm text-sky-200 truncate">{user.clientName}</p>
+                  <p className="text-xs sm:text-sm text-sky-200 truncate">
+                    {user.clientName}
+                  </p>
                 )}
               </div>
             ) : (
               <div className="min-w-0 ml-2">
-                <h1 className="text-md sm:text-lg font-semibold text-white">Welcome</h1>
+                <h1 className="text-md sm:text-lg font-semibold text-white">
+                  Welcome
+                </h1>
               </div>
             )}
           </>
         )}
       </div>
 
-      {user && (
-        <button
-          onClick={logoutUser}
-          className="p-2 rounded-full text-sky-200 hover:bg-sky-700 hover:text-white transition-colors duration-150"
-          aria-label="Log out"
-        >
-          <IoLogOutOutline size={24} />
-        </button>
-      )}
+      <div className="flex items-center space-x-2">
+        {actions}
+        {user && (
+          <button
+            onClick={logoutUser}
+            className="p-2 rounded-full text-sky-200 hover:bg-sky-700 hover:text-white transition-colors duration-150"
+            aria-label="Log out"
+          >
+            <IoLogOutOutline size={24} />
+          </button>
+        )}
+      </div>
     </header>
   );
 };

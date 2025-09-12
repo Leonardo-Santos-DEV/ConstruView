@@ -1,4 +1,3 @@
-// CÓDIGO ATUALIZADO - COPIAR E COLAR
 import apiClient from '../apiClient';
 import type {Content, CreateContentPayload, GetContentsPayload, UpdateContentPayload} from '@/interfaces/contentInterfaces.ts';
 
@@ -42,4 +41,12 @@ export const updateContent = async (contentId: number, payload: UpdateContentPay
 
 export const deleteContent = async (contentId: number): Promise<void> => {
   await apiClient.delete(`/contents/${contentId}`);
+};
+
+export const createShareLink = async (contentId: number, expiresIn: number): Promise<{ shareableLink: string }> => {
+  return (await apiClient.post('/contents/share', { contentId, expiresIn })).data;
+};
+
+export const getSharedContent = async (token: string): Promise<Content> => {
+  return (await apiClient.get(`/share/${token}`)).data;
 };

@@ -37,6 +37,7 @@ export interface ScreenStatusHandlerProps<TData> {
   data: TData | null | undefined;
   navItems?: any[];
   notFoundMessage?: string;
+  requireAuth?: boolean;
   children: (data: TData) => ReactNode;
 }
 

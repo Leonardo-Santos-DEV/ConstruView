@@ -60,6 +60,7 @@ export const SharedContentView: React.FC = () => {
       error={error}
       data={viewData}
       notFoundMessage="Content not found or link has expired."
+      requireAuth={false}
     >
       {(view) => (
         <PageWrapper className="flex flex-col">

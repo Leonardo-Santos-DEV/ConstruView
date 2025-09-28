@@ -42,13 +42,13 @@ export const SharedContentView: React.FC = () => {
     try {
       const url = new URL(viewData.url);
       url.searchParams.set("play", "1");
-      url.searchParams.set("brand", "0"); // Remove a logo da Matterport
+      url.searchParams.set("brand", "0");
       url.searchParams.set("title", "0");
       url.searchParams.set("search", "0");
       url.searchParams.set("qs", "1");
       url.searchParams.set("share", "0");
       url.searchParams.set("mls", "2");
-      url.searchParams.set("help", "0"); // Remove os botões de ajuda e termos
+      url.searchParams.set("help", "0");
       return url.toString();
     } catch (error) {
       console.error("URL do Matterport é inválida:", viewData.url);
@@ -71,9 +71,15 @@ export const SharedContentView: React.FC = () => {
             <header className="w-full p-4 flex justify-center items-center sticky top-0 bg-sky-800 z-20">
               <img
                 src={logoImage}
-                alt="ConstruView Logo"
-                className="w-28 h-auto"
+                alt="Logo"
+                className="group-hover:scale-105 transition-transform duration-150 w-9 h-9 rounded-lg"
               />
+              <span className="text-xl font-bold text-white group-hover:text-cyan-400 transition-colors duration-150">
+                Constru
+                <span className="text-cyan-400 group-hover:text-white transition-colors duration-150">
+                  VIEW
+                </span>
+              </span>
             </header>
             <main className="flex-grow p-4 flex flex-col">
               {modifiedMatterportUrl ? (
